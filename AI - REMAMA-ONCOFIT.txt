@@ -1,29 +1,29 @@
 AI - REMAMA-ONCOFIT
 
-Paciente {
-  id_paciente INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY
+participante {
+  id_participante INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY
   cpf CHAR(11) UNIQUE NOT NULL  -- Apenas números para performance
-  id_programa INT FOREIGN KEY id_programa INT NOT NULL, FOREIGN KEY (id_programa) REFERENCES Programa(id_programa)
+  id_programa INT NOT NULL REFERENCES Programa(id_programa)
   numero_carteirinha VARCHAR(20) UNIQUE -- Adicionado Unique
-  status_id INT FK 
+  status_id INT REFERENCES Status_participante(id_status)
   data_inscricao TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
   nome_completo VARCHAR(150) -- Aumentado por segurança
   nome_social VARCHAR(150)
-  data_nascimento DATE NOT NULL -- Paciente precisa ter idade
+  data_nascimento DATE NOT NULL -- Participante precisa ter idade
   sexo CHAR(1) DEFAULT 'F'
-  id_estado_civil INT FK -- Para seguir o padrão do id_programa
+  id_estado_civil INT REFERENCES Estado_Civil(id_estado_civil)
   possui_filhos BOOLEAN DEFAULT FALSE
   quantidade_filhos SMALLINT DEFAULT 0
   profissao VARCHAR(100) -- Aumentado
   trabalha_atualmente BOOLEAN
-  renda_familiar_faixa ENUM('Até 1 SM', '1-3 SM', 'Mais de 3 SM') -- Melhor que texto livre
+  renda_familiar_faixa VARCHAR(20) CHECK (renda_familiar_faixa IN ('Até 1 SM', '1-3 SM', 'Mais de 3 SM'))
   foto_url VARCHAR(500)
   observacoes TEXT -- Sem limite para não cortar informações clínicas
 }
 
 Endereco {
   id_endereco INT GENERATED ALWAYS AS IDENTITY PK
-  id_paciente INT FK NOT NULL UNIQUE -- 1:1 com Paciente
+  id_participante INT NOT NULL REFERENCES participante(id_participante)
   cep CHAR(8) NOT NULL
   logradouro VARCHAR(150) NOT NULL
   numero VARCHAR(10) NOT NULL
@@ -35,7 +35,7 @@ Endereco {
 
 Contato {
   id_contato INT GENERATED ALWAYS AS IDENTITY PK
-  id_paciente INT FK NOT NULL
+  id_participante INT NOT NULL REFERENCES participante(id_participante)
   telefone_fixo VARCHAR(14)
   celular VARCHAR(15) NOT NULL
   contato_emergencia_nome VARCHAR(100) NOT NULL
@@ -45,7 +45,7 @@ Contato {
 
 Dados_Antropometricos {
   id_antropometrico INT GENERATED ALWAYS AS IDENTITY PK
-  id_paciente INT FK NOT NULL
+  id_participante INT NOT NULL REFERENCES participante(id_participante)
   data_medicao TIMESTAMPTZ NOT NULL DEFAULT CURRENT_DATE
   peso_kg DECIMAL(5,2) NOT NULL -- Ex: 120.50
   altura_m DECIMAL(3,2) NOT NULL -- Ex: 1.75
@@ -53,7 +53,7 @@ Dados_Antropometricos {
   quadril_cm DECIMAL(5,2)
 }
 
-Status_Paciente {
+status_participante {
   id_status INT GENERATED ALWAYS AS IDENTITY PK
   nome_status VARCHAR(20) NOT NULL -- 'Ativa', 'Inativa', 'Suspensa', 'Falecida'
 }
@@ -65,7 +65,7 @@ Estado_Civil {
 
 Avaliacao {
   id_avaliacao INT GENERATED ALWAYS AS IDENTITY PK
-  id_paciente INT FK NOT NULL
+  id_participante INT NOT NULL REFERENCES participante(id_participante)
   numero_avaliacao INT NOT NULL -- Ex: 1ª, 2ª avaliação
   ano INT NOT NULL
   data_avaliacao TIMESTAMPTZ NOT NULL
@@ -85,13 +85,13 @@ Avaliacao {
 
 Ficha_Medica {
   id_ficha INT GENERATED ALWAYS AS IDENTITY PK
-  id_paciente INT FK UNIQUE NOT NULL -- Uma ficha por paciente
+  id_participante INT NOT NULL UNIQUE REFERENCES participante(id_participante)
   atestado_medico_url VARCHAR(500)
   doc_oncologico_url VARCHAR(500)
   data_diagnostico TIMESTAMPTZ
   pos_menopausa BOOLEAN
   tipo_cancer VARCHAR(100)
-  mamas_afetadas ENUM('LD', 'LE', 'Ambas')
+  mamas_afetadas VARCHAR(5) CHECK (mamas_afetadas IN ('LD', 'LE', 'Ambas'))
   recidiva BOOLEAN DEFAULT FALSE
   data_recidiva TIMESTAMPTZ
   locais_afetados TEXT
@@ -100,8 +100,8 @@ Ficha_Medica {
 
 Comorbidade {
   id_comorbidade INT GENERATED ALWAYS AS IDENTITY PK
-  id_paciente INT FK NOT NULL
-  id_tipo_comorbidade INT FK -- Referencia a nova tabela de tipos
+  id_participante INT NOT NULL REFERENCES participante(id_participante)
+  id_tipo_comorbidade INT REFERENCES Tipo_Comorbidade(id_tipo_comorbidade)
   toma_medicamento BOOLEAN
   qual_medicamento TEXT
 }
@@ -125,14 +125,14 @@ Tipo_Treinamento {
 
 Treinamento {
   id_treinamento INT GENERATED ALWAYS AS IDENTITY PK
-  id_paciente INT FK NOT NULL
-  id_tipo_treinamento INT FK NOT NULL -- Referencia a lista de tipos (Natação, etc)
+  id_participante INT NOT NULL REFERENCES participante(id_participante)
+  id_tipo_treinamento INT NOT NULL REFERENCES Tipo_Treinamento(id_tipo_treinamento)
   data_conclusao TIMESTAMPTZ
 }
 
 Evento {
   id_evento INT GENERATED ALWAYS AS IDENTITY PK
-  id_paciente INT FK NOT NULL
+  id_participante INT NOT NULL REFERENCES participante(id_participante)
   nome_evento VARCHAR(150) NOT NULL
   data_evento TIMESTAMPTZ NOT NULL
   resultado TEXT
@@ -145,42 +145,47 @@ Status_Presenca {
 }
 
 Registro_Frequencia {
-  id_frequencia INT GENERATED ALWAYS AS IDENTITY PK
-  id_paciente INT FK NOT NULL
-  id_status_presenca INT FK NOT NULL -- Link direto com a Status_Presenca
-  
-  -- Campos de ligação (FKs Opcionais)
-  id_aula INT FK NULL        -- Preenche se for aula
-  id_treinamento INT FK NULL -- Preenche se for treinamento
-  id_evento INT FK NULL      -- Preenche se for evento
-  
-  data_registro TIMESTAMPTZ NOT NULL DEFAULT CURRENT_DATE
+  id_frequencia INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY
+  id_participante INT NOT NULL REFERENCES participante(id_participante)
+  id_status_presenca INT NOT NULL REFERENCES Status_Presenca(id_status_presenca)
+  id_aula INT NULL REFERENCES Aula(id_aula)
+  id_treinamento INT NULL REFERENCES Treinamento(id_treinamento)
+  id_evento INT NULL REFERENCES Evento(id_evento)
+  data_registro DATE NOT NULL DEFAULT CURRENT_DATE
   justificativa_url VARCHAR(500)
-  
-  -- Dados de esforço (se aplicável à atividade)
   pse INT
   fc_antes INT
   fc_depois INT
-  tipo_atividade
+  
+  CONSTRAINT chk_uma_atividade CHECK (
+    (id_aula IS NOT NULL AND id_treinamento IS NULL AND id_evento IS NULL) OR
+    (id_aula IS NULL AND id_treinamento IS NOT NULL AND id_evento IS NULL) OR
+    (id_aula IS NULL AND id_treinamento IS NULL AND id_evento IS NOT NULL)
+  )
+}
+
+cargo_participante {
+  id_cargo INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY
+  nome_cargo VARCHAR(30) NOT NULL -- 'Gerente', 'Capitã', 'Dragonete', 'Aluna'
 }
 
 Inscricao_Programa {
   id_inscricao INT GENERATED ALWAYS AS IDENTITY PK
-  id_paciente INT FK NOT NULL
-  id_programa INT FK NOT NULL
+  id_participante INT NOT NULL REFERENCES participante(id_participante)
+  id_programa INT NOT NULL REFERENCES Programa(id_programa)
+  id_cargo INT REFERENCES cargo_participante(id_cargo
   turma VARCHAR(20)
-  id_cargo INT FK -- Referencia Cargo_Participante
+  id_cargo INT
   data_inscricao TIMESTAMPTZ DEFAULT CURRENT_DATE
   especializacao_leme BOOLEAN DEFAULT FALSE
   especializacao_tambor BOOLEAN DEFAULT FALSE
-  UNIQUE(id_paciente, id_programa) -- Impede inscrição duplicada no mesmo programa
+  data_desligamento DATE NULL
 }
 
 Funcionarios {
   id_funcionario INT GENERATED ALWAYS AS IDENTITY PK
   nome_funcionario VARCHAR(150) NOT NULL
-  id_funcao INT FK NOT NULL
-  id_role INT FK NOT NULL
+  id_funcao INT NOT NULL REFERENCES Funcoes(id_funcao)
   email VARCHAR(100) UNIQUE NOT NULL
   senha_hash VARCHAR(255) NOT NULL -- Segurança básica
 }
@@ -190,16 +195,10 @@ Funcoes {
   nome_funcao VARCHAR(100) NOT NULL
 }
 
-Roles {
-  id_role INT GENERATED ALWAYS AS IDENTITY PK
-  nome_role VARCHAR(50) NOT NULL -- Nome da regra
-  permissao JSONB -- No Postgres, JSONB define o que cada role pode acessar
-}
-
 Auditoria_Sistema {
   id_audit BIGINT GENERATED ALWAYS AS IDENTITY PK
   data_evento TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
-  id_funcionario INT FK NOT NULL
+  id_funcionario INT NOT NULL REFERENCES Funcionarios(id_funcionario)
   tabela_afetada VARCHAR(50) NOT NULL
   registro_id INT NOT NULL
   acao VARCHAR(10) NOT NULL -- INSERT, UPDATE, DELETE
