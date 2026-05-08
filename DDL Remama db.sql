@@ -6,7 +6,8 @@
 -- 1. TABELAS INDEPENDENTES
 CREATE TABLE status_participante (
     id_status INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    nome_status VARCHAR(20) NOT NULL
+    nome_status VARCHAR(20) NOT NULL,
+    situacao BOOLEAN NOT NULL DEFAULT TRUE  -- TRUE = 1 (ativo), FALSE = 0 (inativo)
 );
 
 CREATE TABLE estado_civil (
