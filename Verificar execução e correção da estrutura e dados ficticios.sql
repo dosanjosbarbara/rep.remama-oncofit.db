@@ -59,12 +59,11 @@ INSERT INTO programa (nome_programa) VALUES
 
 DROP TABLE IF EXISTS cargo_participante CASCADE;
 CREATE TABLE cargo_participante (
-    id_cargo INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_cargo INT PRIMARY KEY,
     nome_cargo VARCHAR(30) NOT NULL
 );
 
-INSERT INTO cargo_participante (nome_cargo) VALUES 
-    ('Aluna'), ('Gerente'), ('Capitã'), ('Dragonete');
+INSERT INTO cargo_participante (id_cargo, nome_cargo) VALUES (1, 'Aluna'), (2, 'Gerente'), (3, 'Capitã'), (4, 'Dragonete');
 
 DROP TABLE IF EXISTS status_presenca CASCADE;
 CREATE TABLE status_presenca (
