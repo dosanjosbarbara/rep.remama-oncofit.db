@@ -55,7 +55,7 @@ CREATE TABLE participante (
     id_participante INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     cpf CHAR(11) UNIQUE NOT NULL,
     numero_carteirinha VARCHAR(20) UNIQUE,
-    status_id INT REFERENCES status_participante(id_status),
+    id_status INT REFERENCES status_participante(id_status),
     data_inscricao TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     nome_completo VARCHAR(150),
     nome_social VARCHAR(150),
