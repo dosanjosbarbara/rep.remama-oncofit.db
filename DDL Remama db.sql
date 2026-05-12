@@ -3,9 +3,9 @@
 -- PARA SUPABASE (POSTGRESQL)
 -- =====================================================
 
--- 1. TABELAS INDEPENDENTES
-CREATE TABLE status_participante (
-    id_status INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+-- 1. TABELAS INDEPENDENTES -- 1 = remama / 2 = oncofit / 3 = ambos 
+CREATE TABLE status_participante (  
+    id_status INT PRIMARY KEY, 
     nome_status VARCHAR(20) NOT NULL,
     situacao BOOLEAN NOT NULL DEFAULT TRUE  -- TRUE = 1 (ativo), FALSE = 0 (inativo)
 );
@@ -38,8 +38,9 @@ CREATE TABLE status_presenca (
     descricao VARCHAR(20) NOT NULL
 );
 
-CREATE TABLE cargo_participante (
-    id_cargo INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+-- 1 = Aluna / 2 = Gerente / 3 = Capitã / 4 = dragonete
+CREATE TABLE cargo_participante ( 
+    id_cargo INT PRIMARY KEY, 
     nome_cargo VARCHAR(30) NOT NULL
 );
 
