@@ -3,7 +3,7 @@
 -- PARA SUPABASE (POSTGRESQL)
 -- =====================================================
 
--- 1. TABELAS INDEPENDENTES -- 1 = remama / 2 = oncofit / 3 = ambos 
+-- 1. TABELAS INDEPENDENTES -- 
 CREATE TABLE status_participante (  
     id_status INT PRIMARY KEY, 
     nome_status VARCHAR(20) NOT NULL,
@@ -15,7 +15,8 @@ CREATE TABLE estado_civil (
     descricao VARCHAR(20) NOT NULL
 );
 
-CREATE TABLE programa (
+-- 1 = remama / 2 = oncofit / 3 = ambos 
+CREATE TABLE programa ( 
     id_programa INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     nome_programa VARCHAR(50) NOT NULL,
     dias_semana VARCHAR(100),
