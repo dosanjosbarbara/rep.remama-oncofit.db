@@ -16,8 +16,8 @@ CREATE TABLE estado_civil (
 );
 
 -- 1 = remama / 2 = oncofit / 3 = ambos 
-CREATE TABLE programa ( 
-    id_programa INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+CREATE TABLE programa (
+    id_programa INT PRIMARY KEY,
     nome_programa VARCHAR(50) NOT NULL,
     dias_semana VARCHAR(100),
     horario TIME
@@ -60,7 +60,7 @@ CREATE TABLE participante (
     nome_completo VARCHAR(150),
     nome_social VARCHAR(150),
     data_nascimento DATE NOT NULL,
-    sexo CHAR(1) DEFAULT 'F',
+    sexo CHAR(1) DEFAULT 'F' CHECK (sexo IN ('F', 'M')),
     id_estado_civil INT REFERENCES estado_civil(id_estado_civil),
     possui_filhos BOOLEAN DEFAULT FALSE,
     quantidade_filhos SMALLINT DEFAULT 0,
@@ -81,7 +81,10 @@ CREATE TABLE endereco (
     complemento VARCHAR(100),
     bairro VARCHAR(50) NOT NULL,
     cidade VARCHAR(50) NOT NULL,
-    uf CHAR(2) NOT NULL
+    uf CHAR(2) NOT NULL CHECK (uf IN (
+        'AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG',
+        'PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'
+    ))
 );
 
 CREATE TABLE contato (
@@ -116,13 +119,19 @@ CREATE TABLE avaliacao (
     mmss_ld_dominante BOOLEAN,
     mmss_le_dominante BOOLEAN,
     marcha_passadas INT CHECK (marcha_passadas BETWEEN 0 AND 300),
-    classificacao_flexibilidade VARCHAR(50),
+    classificacao_flexibilidade VARCHAR(50) CHECK (classificacao_flexibilidade IN ('Excelente', 'Boa', 'Regular', 'Fraca')),
     amplitude_braco_cm DECIMAL(5,2),
     movimentacao_tronco TEXT,
     equilibrio TEXT,
     cond_aerobico TEXT,
     forca TEXT,
     pse INT CHECK (pse BETWEEN 0 AND 10)  -- Escala de Borg CR-10
+);
+
+CREATE TABLE tipo_cancer (
+    id_tipo_cancer INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nome_cancer VARCHAR(100) NOT NULL,
+    cid_o VARCHAR(10)  -- opcional: código CID-O, se a Remama quiser rastreabilidade clínica
 );
 
 CREATE TABLE ficha_medica (
@@ -132,7 +141,7 @@ CREATE TABLE ficha_medica (
     doc_oncologico_url VARCHAR(500),
     data_diagnostico TIMESTAMPTZ,
     pos_menopausa BOOLEAN,
-    tipo_cancer VARCHAR(100),
+    id_tipo_cancer INT REFERENCES tipo_cancer(id_tipo_cancer),
     mamas_afetadas VARCHAR(5) CHECK (mamas_afetadas IN ('LD', 'LE', 'Ambas')),
     recidiva BOOLEAN DEFAULT FALSE,
     data_recidiva TIMESTAMPTZ,
@@ -205,7 +214,7 @@ CREATE TABLE auditoria_sistema (
     id_funcionario INT NOT NULL REFERENCES funcionarios(id_funcionario),
     tabela_afetada VARCHAR(50) NOT NULL,
     registro_id INT NOT NULL,
-    acao VARCHAR(10) NOT NULL,
+    acao VARCHAR(10) NOT NULL CHECK (acao IN ('INSERT', 'UPDATE', 'DELETE')),
     dados_antigos JSONB,
     dados_novos JSONB,
     ip_origem VARCHAR(45)
