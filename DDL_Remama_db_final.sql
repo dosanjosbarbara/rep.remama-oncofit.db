@@ -1,0 +1,371 @@
+-- =====================================================
+-- BANCO DE DADOS REMAMA / ONCOFIT - VERSÃO FINAL
+-- FASE 1: SCHEMA + DADOS DE REFERÊNCIA + INTEGRIDADE
+-- (RLS será aplicado em fase posterior, após definição com a administração)
+-- =====================================================
+
+-- =====================================================
+-- 1. TABELAS INDEPENDENTES
+-- =====================================================
+
+CREATE TABLE status_participante (
+    id_status INT PRIMARY KEY,
+    nome_status VARCHAR(20) NOT NULL,
+    situacao BOOLEAN NOT NULL DEFAULT TRUE  -- TRUE = ativo, FALSE = inativo
+);
+
+CREATE TABLE estado_civil (
+    id_estado_civil INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    descricao VARCHAR(20) NOT NULL
+);
+
+-- 1 = remama / 2 = oncofit / 3 = ambos
+CREATE TABLE programa (
+    id_programa INT PRIMARY KEY,
+    nome_programa VARCHAR(50) NOT NULL,
+    dias_semana VARCHAR(100),
+    horario TIME
+);
+
+CREATE TABLE tipo_comorbidade (
+    id_tipo_comorbidade INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nome_comorbidade VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE tipo_treinamento (
+    id_tipo_treinamento INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nome_treinamento VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE status_presenca (
+    id_status_presenca INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    sigla CHAR(1) NOT NULL,
+    descricao VARCHAR(20) NOT NULL
+);
+
+-- 1 = Aluna / 2 = Gerente / 3 = Capitã / 4 = Dragonete
+CREATE TABLE cargo_participante (
+    id_cargo INT PRIMARY KEY,
+    nome_cargo VARCHAR(30) NOT NULL
+);
+
+CREATE TABLE funcoes (
+    id_funcao INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nome_funcao VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE tipo_cancer (
+    id_tipo_cancer INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nome_cancer VARCHAR(100) NOT NULL,
+    cid_o VARCHAR(10)  -- opcional: código CID-O, se a Remama quiser rastreabilidade clínica
+);
+
+-- =====================================================
+-- 2. TABELA PRINCIPAL (participante)
+-- =====================================================
+
+CREATE TABLE participante (
+    id_participante INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    cpf CHAR(11) UNIQUE NOT NULL,
+    numero_carteirinha VARCHAR(20) UNIQUE,
+    id_status INT REFERENCES status_participante(id_status),
+    data_inscricao TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    nome_completo VARCHAR(150),
+    nome_social VARCHAR(150),
+    data_nascimento DATE NOT NULL,
+    sexo CHAR(1) DEFAULT 'F' CHECK (sexo IN ('F', 'M')),
+    id_estado_civil INT REFERENCES estado_civil(id_estado_civil),
+    possui_filhos BOOLEAN DEFAULT FALSE,
+    quantidade_filhos SMALLINT DEFAULT 0,
+    profissao VARCHAR(100),
+    trabalha_atualmente BOOLEAN,
+    renda_familiar_faixa VARCHAR(20) CHECK (renda_familiar_faixa IN ('Até 1 SM', '1-3 SM', 'Mais de 3 SM')),
+    foto_url VARCHAR(500),
+    observacoes TEXT
+);
+
+-- =====================================================
+-- 3. TABELAS QUE DEPENDEM DE participante
+-- =====================================================
+
+CREATE TABLE endereco (
+    id_endereco INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_participante INT NOT NULL REFERENCES participante(id_participante),
+    cep CHAR(8) NOT NULL,
+    logradouro VARCHAR(150) NOT NULL,
+    numero VARCHAR(10) NOT NULL,
+    complemento VARCHAR(100),
+    bairro VARCHAR(50) NOT NULL,
+    cidade VARCHAR(50) NOT NULL,
+    uf CHAR(2) NOT NULL CHECK (uf IN (
+        'AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG',
+        'PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'
+    ))
+);
+
+CREATE TABLE contato (
+    id_contato INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_participante INT NOT NULL REFERENCES participante(id_participante),
+    telefone_fixo VARCHAR(14),
+    celular VARCHAR(15) NOT NULL,
+    contato_emergencia_nome VARCHAR(100) NOT NULL,
+    contato_emergencia_tel VARCHAR(15) NOT NULL,
+    contato_emergencia_parentesco VARCHAR(30)
+);
+
+CREATE TABLE dados_antropometricos (
+    id_antropometrico INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_participante INT NOT NULL REFERENCES participante(id_participante),
+    data_medicao TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    peso_kg DECIMAL(5,2) NOT NULL,
+    altura_m DECIMAL(3,2) NOT NULL,
+    cintura_cm DECIMAL(5,2),
+    quadril_cm DECIMAL(5,2)
+);
+
+CREATE TABLE avaliacao (
+    id_avaliacao INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_participante INT NOT NULL REFERENCES participante(id_participante),
+    numero_avaliacao INT NOT NULL,
+    ano INT NOT NULL,
+    data_avaliacao TIMESTAMPTZ NOT NULL,
+    sentar_levantar_reps INT CHECK (sentar_levantar_reps BETWEEN 0 AND 200),
+    mmss_ld_reps INT CHECK (mmss_ld_reps BETWEEN 0 AND 200),
+    mmss_le_reps INT CHECK (mmss_le_reps BETWEEN 0 AND 200),
+    mmss_ld_dominante BOOLEAN,
+    mmss_le_dominante BOOLEAN,
+    marcha_passadas INT CHECK (marcha_passadas BETWEEN 0 AND 300),
+    classificacao_flexibilidade VARCHAR(50) CHECK (classificacao_flexibilidade IN ('Excelente', 'Boa', 'Regular', 'Fraca')),
+    amplitude_braco_cm DECIMAL(5,2),
+    movimentacao_tronco TEXT,
+    equilibrio TEXT,
+    cond_aerobico TEXT,
+    forca TEXT,
+    pse INT CHECK (pse BETWEEN 0 AND 10)  -- Escala de Borg CR-10
+);
+
+CREATE TABLE ficha_medica (
+    id_ficha INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_participante INT NOT NULL UNIQUE REFERENCES participante(id_participante),
+    atestado_medico_url VARCHAR(500),
+    doc_oncologico_url VARCHAR(500),
+    data_diagnostico TIMESTAMPTZ,
+    pos_menopausa BOOLEAN,
+    id_tipo_cancer INT REFERENCES tipo_cancer(id_tipo_cancer),
+    mamas_afetadas VARCHAR(5) CHECK (mamas_afetadas IN ('LD', 'LE', 'Ambas')),
+    recidiva BOOLEAN DEFAULT FALSE,
+    data_recidiva TIMESTAMPTZ,
+    locais_afetados TEXT,
+    tratamentos_realizados TEXT
+);
+
+CREATE TABLE comorbidade (
+    id_comorbidade INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_participante INT NOT NULL REFERENCES participante(id_participante),
+    id_tipo_comorbidade INT REFERENCES tipo_comorbidade(id_tipo_comorbidade),
+    toma_medicamento BOOLEAN,
+    qual_medicamento TEXT
+);
+
+CREATE TABLE treinamento (
+    id_treinamento INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_participante INT NOT NULL REFERENCES participante(id_participante),
+    id_tipo_treinamento INT NOT NULL REFERENCES tipo_treinamento(id_tipo_treinamento),
+    data_conclusao TIMESTAMPTZ
+);
+
+CREATE TABLE evento (
+    id_evento INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_participante INT NOT NULL REFERENCES participante(id_participante),
+    nome_evento VARCHAR(150) NOT NULL,
+    data_evento TIMESTAMPTZ NOT NULL,
+    resultado TEXT
+);
+
+CREATE TABLE inscricao_programa (
+    id_inscricao INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_participante INT NOT NULL REFERENCES participante(id_participante),
+    id_programa INT NOT NULL REFERENCES programa(id_programa),
+    id_cargo INT REFERENCES cargo_participante(id_cargo),
+    turma VARCHAR(20),
+    data_inscricao TIMESTAMPTZ DEFAULT CURRENT_DATE,
+    especializacao_leme BOOLEAN DEFAULT FALSE,
+    especializacao_tambor BOOLEAN DEFAULT FALSE,
+    data_desligamento DATE NULL
+);
+
+-- =====================================================
+-- 4. TABELA DE FREQUÊNCIA
+-- =====================================================
+
+CREATE TABLE registro_frequencia (
+    id_frequencia INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id_participante INT NOT NULL REFERENCES participante(id_participante),
+    id_status_presenca INT NOT NULL REFERENCES status_presenca(id_status_presenca),
+    id_treinamento INT NULL REFERENCES treinamento(id_treinamento),
+    id_evento INT NULL REFERENCES evento(id_evento),
+    data_registro DATE NOT NULL DEFAULT CURRENT_DATE,
+    justificativa_url VARCHAR(500),
+    fc_antes INT CHECK (fc_antes BETWEEN 30 AND 220),
+    fc_depois INT CHECK (fc_depois BETWEEN 30 AND 220),
+    CHECK (id_treinamento IS NOT NULL OR id_evento IS NOT NULL)
+);
+
+-- =====================================================
+-- 5. TABELAS DE FUNCIONÁRIOS E AUDITORIA
+-- =====================================================
+
+CREATE TABLE funcionarios (
+    id_funcionario INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nome_funcionario VARCHAR(150) NOT NULL,
+    id_funcao INT NOT NULL REFERENCES funcoes(id_funcao),
+    email VARCHAR(100) UNIQUE NOT NULL,
+    senha_hash VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE auditoria_sistema (
+    id_audit BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    data_evento TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    id_funcionario INT NOT NULL REFERENCES funcionarios(id_funcionario),
+    tabela_afetada VARCHAR(50) NOT NULL,
+    registro_id INT NOT NULL,
+    acao VARCHAR(10) NOT NULL CHECK (acao IN ('INSERT', 'UPDATE', 'DELETE')),
+    dados_antigos JSONB,
+    dados_novos JSONB,
+    ip_origem VARCHAR(45)
+);
+
+-- =====================================================
+-- 6. AUTENTICAÇÃO E CONTROLE DE ACESSO
+-- (RLS em si fica para a fase 2, após definição com a administração)
+-- =====================================================
+
+CREATE TABLE nivel_acesso (
+    id_nivel_acesso INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nome_nivel VARCHAR(30) NOT NULL UNIQUE  -- 'admin', 'pesquisador', 'voluntario'
+);
+
+CREATE TABLE usuario_acesso (
+    id_usuario INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    email VARCHAR(150) UNIQUE NOT NULL,
+    senha_hash VARCHAR(255) NOT NULL,  -- bcrypt/argon2, gerado no backend
+    id_nivel_acesso INT NOT NULL REFERENCES nivel_acesso(id_nivel_acesso),
+    id_participante INT UNIQUE REFERENCES participante(id_participante),  -- só p/ voluntária
+    id_funcionario INT UNIQUE REFERENCES funcionarios(id_funcionario),    -- só p/ admin/pesquisador
+    ativo BOOLEAN NOT NULL DEFAULT TRUE,
+    criado_em TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    ultimo_login TIMESTAMPTZ
+);
+
+CREATE INDEX idx_usuario_acesso_email ON usuario_acesso(email);
+
+-- =====================================================
+-- 7. DADOS DE REFERÊNCIA (SEED DE PADRONIZAÇÃO)
+-- =====================================================
+
+INSERT INTO status_participante (id_status, nome_status, situacao) VALUES
+    (1, 'Ativa', TRUE),
+    (2, 'Inativa', FALSE),
+    (3, 'Afastada', FALSE),
+    (4, 'Desligada', FALSE);
+
+INSERT INTO estado_civil (descricao) VALUES
+    ('Solteira'),
+    ('Casada'),
+    ('Divorciada'),
+    ('Viúva'),
+    ('União estável');
+
+INSERT INTO programa (id_programa, nome_programa) VALUES
+    (1, 'Remama'),
+    (2, 'OncoFit'),
+    (3, 'Ambos');
+
+INSERT INTO cargo_participante (id_cargo, nome_cargo) VALUES
+    (1, 'Aluna'),
+    (2, 'Gerente'),
+    (3, 'Capitã'),
+    (4, 'Dragonete');
+
+INSERT INTO status_presenca (sigla, descricao) VALUES
+    ('P', 'Presente'),
+    ('F', 'Falta'),
+    ('J', 'Justificada');
+
+INSERT INTO funcoes (nome_funcao) VALUES
+    ('Educador Físico'),
+    ('Fisioterapeuta'),
+    ('Administrador'),
+    ('Coordenador'),
+    ('Voluntário de Apoio');
+
+INSERT INTO nivel_acesso (nome_nivel) VALUES
+    ('admin'),
+    ('pesquisador'),
+    ('voluntario');
+
+-- SUGESTÃO — confirmar lista definitiva com a administração do Remama
+INSERT INTO tipo_comorbidade (nome_comorbidade) VALUES
+    ('Hipertensão'),
+    ('Diabetes tipo 2'),
+    ('Linfedema'),
+    ('Osteoporose'),
+    ('Hipotireoidismo'),
+    ('Depressão/Ansiedade');
+
+-- SUGESTÃO — confirmar lista definitiva com a administração do Remama
+INSERT INTO tipo_treinamento (nome_treinamento) VALUES
+    ('Remada em barco-dragão'),
+    ('Treinamento funcional'),
+    ('Alongamento e mobilidade'),
+    ('Treino de força (OncoFit)'),
+    ('Condicionamento aeróbico');
+
+-- SUGESTÃO — confirmar lista definitiva com a administração/equipe clínica do Remama
+INSERT INTO tipo_cancer (nome_cancer) VALUES
+    ('Carcinoma ductal invasivo'),
+    ('Carcinoma lobular invasivo'),
+    ('Carcinoma ductal in situ'),
+    ('Câncer de mama triplo negativo'),
+    ('Outro');
+
+-- =====================================================
+-- 8. TRIGGER DE INTEGRIDADE
+-- status_participante (global) <-> inscricao_programa.data_desligamento (por programa)
+-- =====================================================
+
+CREATE OR REPLACE FUNCTION fn_atualiza_status_participante()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_id_participante INT;
+    v_tem_inscricao_ativa BOOLEAN;
+    v_status_atual INT;
+BEGIN
+    v_id_participante := COALESCE(NEW.id_participante, OLD.id_participante);
+
+    SELECT EXISTS (
+        SELECT 1 FROM inscricao_programa
+        WHERE id_participante = v_id_participante
+          AND data_desligamento IS NULL
+    ) INTO v_tem_inscricao_ativa;
+
+    SELECT id_status INTO v_status_atual
+    FROM participante WHERE id_participante = v_id_participante;
+
+    IF v_tem_inscricao_ativa AND v_status_atual = 4 THEN
+        -- tinha sido marcada Desligada, e agora tem inscrição ativa de novo
+        UPDATE participante SET id_status = 1 WHERE id_participante = v_id_participante;
+
+    ELSIF NOT v_tem_inscricao_ativa AND v_status_atual = 1 THEN
+        -- estava Ativa, e agora não tem mais nenhuma inscrição ativa
+        UPDATE participante SET id_status = 4 WHERE id_participante = v_id_participante;
+    END IF;
+
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_atualiza_status_participante
+AFTER INSERT OR UPDATE OF data_desligamento OR DELETE ON inscricao_programa
+FOR EACH ROW
+EXECUTE FUNCTION fn_atualiza_status_participante();

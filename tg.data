@@ -1,0 +1,50 @@
+CREATE OR REPLACE FUNCTION fn_atualiza_status_participante() -- 
+RETURNS TRIGGER AS $$
+DECLARE
+    v_id_participante INT;
+    v_tem_inscricao_ativa BOOLEAN;
+    v_status_atual INT;
+BEGIN
+    -- pega o id_participante afetado, seja qual for a operação
+    v_id_participante := COALESCE(NEW.id_participante, OLD.id_participante);
+
+    -- verifica se ainda existe pelo menos uma inscrição ativa
+    SELECT EXISTS (
+        SELECT 1 FROM inscricao_programa
+        WHERE id_participante = v_id_participante
+          AND data_desligamento IS NULL
+    ) INTO v_tem_inscricao_ativa;
+
+    SELECT id_status INTO v_status_atual
+    FROM participante WHERE id_participante = v_id_participante;
+
+    IF v_tem_inscricao_ativa AND v_status_atual = 4 THEN
+        -- tinha sido marcada Desligada, e agora tem inscrição ativa de novo
+        UPDATE participante SET id_status = 1 WHERE id_participante = v_id_participante;
+
+    ELSIF NOT v_tem_inscricao_ativa AND v_status_atual = 1 THEN
+        -- estava Ativa, e agora não tem mais nenhuma inscrição ativa
+        UPDATE participante SET id_status = 4 WHERE id_participante = v_id_participante;
+    END IF;
+
+    RETURN NULL; -- trigger AFTER não precisa retornar linha
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_atualiza_status_participante
+AFTER INSERT OR UPDATE OF data_desligamento OR DELETE ON inscricao_programa
+FOR EACH ROW
+EXECUTE FUNCTION fn_atualiza_status_participante();
+
+
+------
+--teste
+-- cria uma participante de teste + inscrição
+INSERT INTO participante (cpf, data_nascimento, id_status) VALUES ('11111111111', '1990-01-01', 1);
+INSERT INTO inscricao_programa (id_participante, id_programa) VALUES (1, 1);
+
+-- desliga a única inscrição dela
+UPDATE inscricao_programa SET data_desligamento = CURRENT_DATE WHERE id_participante = 1;
+
+-- confere: deveria ter virado id_status = 4 automaticamente
+SELECT id_status FROM participante WHERE id_participante = 1;
