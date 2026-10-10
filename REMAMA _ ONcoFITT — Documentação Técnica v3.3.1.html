@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>REMAMA / ONcoFITT — Documentação Técnica v3.3.1</title>
+<style>
+:root{
+  --bg:#f8f9fa;--surface:#fff;--border:#dee2e6;--primary:#2c6e49;--primary-dark:#1b4332;
+  --accent:#52b788;--warn:#e76f51;--info:#4361ee;--muted:#6c757d;--text:#212529;
+  --radius:8px;--shadow:0 2px 8px rgba(0,0,0,.08);
+  --tab-h:44px;
+}
+@media(prefers-color-scheme:dark){
+  :root{--bg:#0d1117;--surface:#161b22;--border:#30363d;--text:#e6edf3;--muted:#8b949e;
+        --primary:#3fb950;--primary-dark:#2ea043;--accent:#3fb950;--shadow:0 2px 8px rgba(0,0,0,.4);}
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+     background:var(--bg);color:var(--text);line-height:1.6;font-size:15px;
+     padding-top:env(safe-area-inset-top,0);padding-bottom:env(safe-area-inset-bottom,0)}
+/* ── NAV ── */
+.topbar{background:var(--primary-dark);color:#fff;padding:14px 24px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100}
+.topbar h1{font-size:16px;font-weight:600;letter-spacing:.3px}
+.topbar .badge{background:var(--accent);color:#fff;font-size:11px;padding:2px 8px;border-radius:20px;font-weight:700}
+/* ── TABS ── */
+.tab-bar{display:flex;overflow-x:auto;border-bottom:2px solid var(--border);background:var(--surface);
+         scrollbar-width:none;position:sticky;top:48px;z-index:90}
+.tab-bar::-webkit-scrollbar{display:none}
+.tab-btn{flex-shrink:0;border:none;background:none;padding:0 18px;height:var(--tab-h);
+         cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);border-bottom:3px solid transparent;
+         margin-bottom:-2px;transition:all .18s;white-space:nowrap}
+.tab-btn:hover{color:var(--primary)}
+.tab-btn.active{color:var(--primary);border-bottom-color:var(--primary);font-weight:700}
+/* ── PANELS ── */
+.panel{display:none;max-width:980px;margin:0 auto;padding:32px 20px}
+.panel.active{display:block}
+/* ── TYPOGRAPHY ── */
+h2{font-size:22px;font-weight:700;color:var(--primary-dark);margin:0 0 6px}
+h3{font-size:16px;font-weight:700;color:var(--text);margin:28px 0 8px;border-left:4px solid var(--accent);padding-left:10px}
+h4{font-size:14px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin:20px 0 8px}
+p{margin:8px 0}
+.lead{font-size:16px;color:var(--muted);margin-bottom:24px}
+/* ── CARDS ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+      padding:18px 20px;margin:14px 0;box-shadow:var(--shadow)}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin:16px 0}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+           padding:16px;text-align:center;box-shadow:var(--shadow)}
+.stat-card .num{font-size:36px;font-weight:800;color:var(--primary)}
+.stat-card .lbl{font-size:12px;color:var(--muted);margin-top:2px}
+/* ── TABLE ── */
+.tbl-wrap{overflow-x:auto;margin:12px 0}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--primary-dark);color:#fff;padding:9px 12px;text-align:left;font-weight:600}
+td{padding:8px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+tr:hover td{background:color-mix(in srgb,var(--accent) 6%,transparent)}
+/* ── PILLS ── */
+.pill{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:12px;letter-spacing:.3px}
+.pill-green{background:#d1fae5;color:#065f46} .pill-blue{background:#dbeafe;color:#1e40af}
+.pill-red{background:#fee2e2;color:#991b1b} .pill-amber{background:#fef3c7;color:#92400e}
+.pill-purple{background:#ede9fe;color:#5b21b6} .pill-gray{background:#f1f5f9;color:#475569}
+@media(prefers-color-scheme:dark){
+  .pill-green{background:#064e3b;color:#6ee7b7}.pill-blue{background:#1e3a8a;color:#93c5fd}
+  .pill-red{background:#7f1d1d;color:#fca5a5}.pill-amber{background:#78350f;color:#fcd34d}
+  .pill-purple{background:#3b0764;color:#c4b5fd}.pill-gray{background:#1e293b;color:#94a3b8}
+}
+/* ── CODE ── */
+pre{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:14px 16px;
+    overflow-x:auto;font-family:'JetBrains Mono',Consolas,monospace;font-size:12.5px;line-height:1.5;margin:12px 0}
+code{font-family:'JetBrains Mono',Consolas,monospace;font-size:12.5px;background:var(--bg);
+     padding:1px 5px;border-radius:4px;border:1px solid var(--border)}
+/* ── CALLOUTS ── */
+.callout{border-left:4px solid;border-radius:0 var(--radius) var(--radius) 0;padding:12px 16px;margin:14px 0}
+.callout-warn{border-color:var(--warn);background:color-mix(in srgb,var(--warn) 10%,transparent)}
+.callout-info{border-color:var(--info);background:color-mix(in srgb,var(--info) 8%,transparent)}
+.callout-ok{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,transparent)}
+/* ── FLOW ── */
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0}
+.flow-step{background:var(--primary-dark);color:#fff;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600}
+.flow-arrow{color:var(--muted);font-size:18px}
+/* ── MATRIX ── */
+.matrix{display:grid;grid-template-columns:auto repeat(3,1fr);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;font-size:13px;margin:14px 0}
+.mh{background:var(--primary-dark);color:#fff;padding:8px 12px;font-weight:600;text-align:center}
+.mr{padding:8px 12px;border-top:1px solid var(--border)}
+.mr.lbl{font-weight:600;background:color-mix(in srgb,var(--accent) 8%,transparent)}
+.mc{text-align:center}.mc.y{color:#16a34a;font-weight:700}.mc.n{color:#dc2626}
+/* ── RESP ── */
+@media(max-width:600px){
+  .card-grid{grid-template-columns:1fr}
+  .panel{padding:20px 14px}
+  h2{font-size:18px}
+  .topbar h1{font-size:14px}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+  <h1>REMAMA / ONcoFITT — Documentação Técnica</h1>
+  <span class="badge">DDL v3.3.1</span>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="show('tab-changelog')">📋 Mudanças no MD</button>
+  <button class="tab-btn" onclick="show('tab-overview')">🗺 Visão Geral</button>
+  <button class="tab-btn" onclick="show('tab-schema')">🗄 Schema</button>
+  <button class="tab-btn" onclick="show('tab-regras')">⚙️ Regras de Negócio</button>
+  <button class="tab-btn" onclick="show('tab-backend')">🔌 Backend</button>
+  <button class="tab-btn" onclick="show('tab-arquitetura')">🏗 Arquitetura & UX</button>
+  <button class="tab-btn" onclick="show('tab-dados')">📊 Ciência de Dados</button>
+  <button class="tab-btn" onclick="show('tab-testes')">🧪 Testes</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ TAB 1 -->
+<div id="tab-changelog" class="panel active">
+  <h2>Mudanças em relação ao MD — e o porquê de cada uma</h2>
+  <p class="lead">Algumas regras do MD foram implementadas de forma diferente do que foi descrito. Esta aba documenta cada divergência, com a justificativa técnica e o impacto operacional.</p>
+
+  <div class="callout callout-ok">
+    <strong>Critério de divergência</strong> — uma decisão aparece aqui quando o banco <em>não faz exatamente</em> o que o texto do MD diz, seja por impossibilidade técnica, por inconsistência interna do próprio MD, ou por uma escolha deliberada que melhora a segurança ou a operação.
+  </div>
+
+  <div class="card">
+    <h3>RF01 — Recuperação de senha: Supabase Auth, não tabela própria</h3>
+    <p><strong>O que o MD diz:</strong> "o sistema deve permitir que a usuária recupere a senha via e-mail." Sem detalhes de implementação.</p>
+    <p><strong>O que foi feito:</strong> o campo <code>usuario_acesso.auth_user_id UUID</code> liga cada conta à identidade do Supabase Auth. A coluna <code>senha_hash</code> passou a ser <em>opcional</em>. O fluxo de recuperação vive inteiramente no Supabase Auth (e-mail de reset, token de uso único, expiração automática).</p>
+    <p><strong>Por quê:</strong> criar uma tabela de tokens dentro do banco implica gestão de expiração, invalidação após uso, proteção contra race condition e envio de e-mail — um mini-serviço inteiro. O Supabase Auth resolve tudo isso com segurança auditada. O banco guarda apenas a chave de vínculo.</p>
+    <div class="callout callout-warn">
+      <strong>Atenção operacional:</strong> o SMTP padrão do Supabase Free envia pouquíssimos e-mails por hora no projeto inteiro. Configure um SMTP próprio (Resend, SendGrid, Brevo) <em>antes</em> de abrir para usuárias reais — o campo está disponível em Project → Settings → Auth → SMTP Provider.
+    </div>
+    <p><strong>O que atualizar no MD:</strong> adicionar seção de integração com Supabase Auth; mencionar <code>auth_user_id</code>; descrever o fluxo de login por CPF (backend busca e-mail via CPF, depois chama <code>signInWithPassword</code>).</p>
+  </div>
+
+  <div class="card">
+    <h3>RF05 — Grau de linfedema: escala de 1 a 4 (era 1 a 3 no MD)</h3>
+    <p><strong>O que o MD diz:</strong> "registrar linfedema com grau de 1 a 3." A v3.3 implementou <code>CHECK (grau BETWEEN 1 AND 3)</code>.</p>
+    <p><strong>O que foi feito na v3.3.1:</strong> <code>CHECK (grau BETWEEN 1 AND 4)</code>.</p>
+    <p><strong>Por quê:</strong> a classificação clínica internacional de linfedema (ISL/ICG) usa 4 estágios: I (reversível), II (irreversível sem fibrose), III (elefantíase), e o estágio 0 subcínico. A escala de 3 pontos estava truncada — uma participante em estágio III seria registrada erroneamente como grau 3, perdendo a distinção clínica.</p>
+    <p><strong>O que atualizar no MD:</strong> RF05 → grau de linfedema: 1 a 4 (conforme ISL). Confirmar com a equipe médica se o estágio 0 (subcínico/latente) deve ser registrado como <code>presente = FALSE</code> ou como grau 0.</p>
+  </div>
+
+  <div class="card">
+    <h3>RF06 — Deferimento de justificativa: gestão_1 <em>e</em> gestão_2</h3>
+    <p><strong>O que o MD diz:</strong> "a coordenação avalia a justificativa" — o que foi interpretado na v3.2 como exclusivo da gestão_1 (coordenadora).</p>
+    <p><strong>O que foi decidido na v3.3:</strong> gestão_1 <em>e</em> gestão_2 (professor/a) podem deferir ou indeferir.</p>
+    <p><strong>Por quê:</strong> o professor conhece o contexto da aula e da participante. Exigir que toda justificativa passe pela coordenadora cria gargalo operacional, especialmente em semanas com múltiplas aulas. A decisão de deferimento não altera dado clínico sensível — apenas converte uma falta (F) em justificada (J) no cálculo de assiduidade.</p>
+    <p><strong>O que atualizar no MD:</strong> RF06 → "a equipe (coordenação ou professor/a) avalia a justificativa." Manter que a <em>aprovação de atestado</em> continua exclusiva da gestão_1.</p>
+  </div>
+
+  <div class="card">
+    <h3>RF07 — Status global: automação <em>e</em> gatilhos</h3>
+    <p><strong>O que o MD diz:</strong> o status da participante (Ativa, Inativa, Afastada, Desligada) deve refletir automaticamente a situação das inscrições.</p>
+    <p><strong>O que foi feito:</strong> a trigger <code>trg_atualiza_status_participante</code> automatiza a transição 2→1 (quando surgem contato de emergência, atestado aprovado e vigente, e inscrição ativa) e 1→4 (quando a última inscrição ativa é encerrada). O retorno (4→1) também é automático em novo ingresso. O status 3 (Afastada) é sempre manual (gestão_1).</p>
+    <p><strong>Detalhe importante:</strong> atestado vencido não desativa a participante (RN02) — ela fica com <code>apto_pratica = false</code> na view, mas mantém o status 1. Isso evita que um vencimento administrativo gere confusão com "desligamento".</p>
+    <p><strong>O que atualizar no MD:</strong> documentar os gatilhos automáticos e a distinção entre "status global" e "apto para a prática". Detalhar que Afastada (3) é manual e requer justificativa registrada.</p>
+  </div>
+
+  <div class="card">
+    <h3>RN12 — Uma Capitã por barco: nova tabela <code>barco</code></h3>
+    <p><strong>O que o MD diz:</strong> "máximo de uma Capitã ativa por barco." O MD não define a entidade barco — usava o campo <code>turma</code> como proxy.</p>
+    <p><strong>O que foi feito:</strong> criada a tabela <code>barco (id_barco, nome_barco)</code>. A inscrição no REMAMA referencia <code>id_barco</code>. A regra é implementada com <code>UNIQUE INDEX uq_capita_por_barco</code> sobre <code>(id_programa, id_barco)</code> filtrado por cargo = Capitã e sem data de desligamento.</p>
+    <p><strong>Por quê:</strong> <code>turma</code> é o horário da aula (08h, 09h, etc.) — um barco pode ter turmas diferentes. Misturar os dois conceitos impedia escalar a regra corretamente. Com a entidade separada, o barco tem identidade própria e pode no futuro guardar nome, categoria e histórico.</p>
+    <p><strong>O que atualizar no MD:</strong> adicionar entidade <code>barco</code> ao modelo de dados. Distinguir turma (horário) de barco (embarcação). RN12 referencia <code>id_barco</code>, não <code>turma</code>.</p>
+  </div>
+
+  <div class="card">
+    <h3>RF08 — Link da aula ONcoFITT: coluna oculta + função controlada</h3>
+    <p><strong>O que o MD diz:</strong> "o professor publica o link da reunião; a participante acessa o link para entrar na aula."</p>
+    <p><strong>O que foi feito:</strong> <code>aula.link_aula</code> não aparece no <code>GRANT SELECT ... ON aula TO app_participante</code>. A aluna só obtém o link por <code>fn_link_aula(id_aula)</code>, que verifica simultaneamente: (a) a aula está em andamento, (b) a participante está apta (atestado vigente), e (c) o pré-registro foi feito. Qualquer falha retorna exceção com mensagem específica.</p>
+    <p><strong>Por quê:</strong> o link do Meet/Zoom é dado sensível do ponto de vista operacional — sua divulgação antecipada ou para participantes sem atestado vigente viola o controle de acesso à prática. A função é o único caminho.</p>
+    <p><strong>O que atualizar no MD:</strong> RF08 → o frontend chama <code>SELECT fn_link_aula(:id_aula)</code> ao clicar em "Entrar na aula" e trata os três estados de erro com mensagens amigáveis.</p>
+  </div>
+
+  <div class="card">
+    <h3>RN10 — Senha de ADM: verificada pelo backend, não pelo banco</h3>
+    <p><strong>O que o MD diz:</strong> "ações críticas (desligamento, alteração de CID-O) exigem confirmação de senha de ADM."</p>
+    <p><strong>O que foi feito:</strong> o banco <em>não armazena nem verifica</em> a senha de ADM. O backend valida a senha no lado do servidor e, na <em>mesma transação</em>, executa <code>SET LOCAL app.adm_confirmado = 'on'</code>. As triggers verificam <code>fn_adm_confirmado()</code>. Sem esse SET, a operação crítica é recusada.</p>
+    <p><strong>Por quê:</strong> armazenar uma segunda senha no banco cria superfície de ataque (hash exposto em backup, auditoria de troca etc.). O padrão de "segredo no servidor + flag na transação" mantém a garantia sem expor credencial no banco.</p>
+    <p><strong>O que atualizar no MD:</strong> RN10 → especificar o fluxo: usuária digita senha de ADM → backend valida → abre transação com flag → executa ação → fecha transação. A senha de ADM nunca trafega para o banco.</p>
+  </div>
+
+  <div class="card">
+    <h3>Sigla CSP (era "C" na v3.1)</h3>
+    <p><strong>Histórico:</strong> a v3.1 usava sigla <code>C</code> para "Compareceu sem participação". O MD descreve o estado mas não fixa a sigla.</p>
+    <p><strong>O que foi feito na v3.2:</strong> renomeada para <code>CSP</code> (3 caracteres), tornando o significado autoexplicativo e eliminando ambiguidade.</p>
+    <p><strong>Impacto:</strong> qualquer consulta, export ou relatório que filtre por <code>sigla = 'C'</code> retornará zero resultados. O frontend deve usar <code>CSP</code>. Verificar também filtros em Power BI, planilhas de acompanhamento e scripts de importação histórica.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ TAB 2 -->
+<div id="tab-overview" class="panel">
+  <h2>Visão Geral do Sistema</h2>
+  <p class="lead">REMAMA e ONcoFITT são dois programas de reabilitação física para sobreviventes de câncer de mama. Este banco centraliza cadastro, presença, avaliações e histórico clínico de todas as participantes.</p>
+
+  <div class="card-grid">
+    <div class="stat-card"><div class="num">33</div><div class="lbl">Tabelas</div></div>
+    <div class="stat-card"><div class="num">9</div><div class="lbl">Views</div></div>
+    <div class="stat-card"><div class="num">26</div><div class="lbl">Funções</div></div>
+    <div class="stat-card"><div class="num">54</div><div class="lbl">Triggers</div></div>
+    <div class="stat-card"><div class="num">54</div><div class="lbl">Políticas RLS</div></div>
+    <div class="stat-card"><div class="num">61</div><div class="lbl">Índices</div></div>
+    <div class="stat-card"><div class="num">3</div><div class="lbl">Papéis de acesso</div></div>
+    <div class="stat-card"><div class="num">49</div><div class="lbl">Testes automatizados</div></div>
+  </div>
+
+  <h3>Os dois programas</h3>
+  <div class="card-grid">
+    <div class="card">
+      <h4>🚣 REMAMA</h4>
+      <p>Dragon boat para sobreviventes de câncer de mama. Aulas presenciais em raia ou indoor. Chamada pelo professor (P/F/CSP). PSE registrado pelo professor. Limite operacional: 1 Capitã por barco. Assiduidade calculada pela RN01.</p>
+    </div>
+    <div class="card">
+      <h4>💻 ONcoFITT</h4>
+      <p>Treinamento funcional online. Limite de 100 participantes por aula. Aluna faz pré-registro ("Entrar na aula") e professor confirma (P/F/CSP). PSE pode ser respondido pela própria aluna em até 24h. Link da reunião liberado só para quem está apta e fez o pré-registro.</p>
+    </div>
+  </div>
+
+  <h3>Ciclo de vida de uma participante</h3>
+  <div class="flow">
+    <div class="flow-step">Pré-cadastro</div><div class="flow-arrow">→</div>
+    <div class="flow-step">Dados & Atestado</div><div class="flow-arrow">→</div>
+    <div class="flow-step">Atestado Aprovado</div><div class="flow-arrow">→</div>
+    <div class="flow-step">Inscrição ativa</div><div class="flow-arrow">→</div>
+    <div class="flow-step">Status Ativa (1)</div><div class="flow-arrow">→</div>
+    <div class="flow-step">Participação</div>
+  </div>
+  <div class="flow">
+    <div class="flow-step">Atestado vence</div><div class="flow-arrow">→</div>
+    <div class="flow-step">apto_pratica = false</div><div class="flow-arrow">→</div>
+    <div class="flow-step">Bloqueio de presença</div><div class="flow-arrow">→</div>
+    <div class="flow-step">Novo atestado</div><div class="flow-arrow">→</div>
+    <div class="flow-step">Liberada</div>
+  </div>
+
+  <h3>Status global da participante</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>id</th><th>Nome</th><th>Automático?</th><th>Condição</th></tr>
+    <tr><td>1</td><td><span class="pill pill-green">Ativa</span></td><td>Sim (trigger)</td><td>Contato completo + atestado vigente + inscrição ativa</td></tr>
+    <tr><td>2</td><td><span class="pill pill-amber">Inativa</span></td><td>Sim (default)</td><td>Estado inicial; volta a 2 quando a ativação falha</td></tr>
+    <tr><td>3</td><td><span class="pill pill-blue">Afastada</span></td><td>Manual (gestão_1)</td><td>Licença médica ou administrativa</td></tr>
+    <tr><td>4</td><td><span class="pill pill-red">Desligada</span></td><td>Sim (trigger)</td><td>Última inscrição ativa encerrada; retorno reverte para 1</td></tr>
+  </table></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ TAB 3 -->
+<div id="tab-schema" class="panel">
+  <h2>Schema — Tabelas e Relacionamentos</h2>
+
+  <h3>Tabelas de domínio (seeds imutáveis)</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>Tabela</th><th>Descrição</th><th>Registros-chave</th></tr>
+    <tr><td><code>programa</code></td><td>REMAMA (1) e ONcoFITT (2)</td><td>2 registros fixos</td></tr>
+    <tr><td><code>status_participante</code></td><td>Ativa / Inativa / Afastada / Desligada</td><td>ids 1-4</td></tr>
+    <tr><td><code>status_presenca</code></td><td>P / F / J / CSP / PRE</td><td>5 siglas</td></tr>
+    <tr><td><code>cargo_participante</code></td><td>Aluna-Remadora / Gerente / Capitã / Dragonete / Voga</td><td>5 cargos</td></tr>
+    <tr><td><code>nivel_acesso</code></td><td>participante / gestao_1 / gestao_2</td><td>3 níveis</td></tr>
+    <tr><td><code>tipo_cancer</code></td><td>Catálogo CID-O com campo <code>cid_o</code></td><td>Seedado; extensível</td></tr>
+    <tr><td><code>tipo_comorbidade</code></td><td>Com flags <code>exige_variacao</code> e <code>exige_descricao</code></td><td>Validado por trigger</td></tr>
+  </table></div>
+
+  <h3>Tabelas de pessoa</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>Tabela</th><th>Chave</th><th>Destaque</th></tr>
+    <tr><td><code>participante</code></td><td>id_participante</td><td>cpf CHAR(11) UNIQUE; <code>possui_alergia</code> + CHECK; <code>medicamentos</code></td></tr>
+    <tr><td><code>endereco</code></td><td>id_endereco → id_participante</td><td>Editável pela própria aluna</td></tr>
+    <tr><td><code>contato</code></td><td>id_contato → id_participante</td><td><code>contato_emergencia_parentesco NOT NULL</code> (RN08)</td></tr>
+    <tr><td><code>funcionarios</code></td><td>id_funcionario</td><td>Email único; sem dados clínicos</td></tr>
+    <tr><td><code>usuario_acesso</code></td><td>id_usuario</td><td><code>auth_user_id UUID</code> para Supabase Auth; senha_hash opcional</td></tr>
+  </table></div>
+
+  <h3>Tabelas clínicas</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>Tabela</th><th>Chave</th><th>Destaque</th></tr>
+    <tr><td><code>ficha_medica</code></td><td>1:1 com participante</td><td>CID-O, lateralidade, datas de término de tratamento, HT e RT em manutenção</td></tr>
+    <tr><td><code>sintoma</code></td><td>id_sintoma → id_participante</td><td>tipo: linfedema (grau 1-4, braço) ou neuropatia (localização); histórico por <code>registrado_em</code></td></tr>
+    <tr><td><code>atestado_medico</code></td><td>id_atestado → id_participante</td><td>status pendente/aprovado/rejeitado; <code>data_documento</code> ≤ hoje; validade 180 dias</td></tr>
+    <tr><td><code>comorbidade</code></td><td>id_comorbidade → id_participante</td><td>Validação de variação e descrição por trigger</td></tr>
+    <tr><td><code>dados_antropometricos</code></td><td>id_antropometrico → id_participante</td><td>peso, altura, cintura, quadril; histórico temporal</td></tr>
+    <tr><td><code>avaliacao</code></td><td>id_avaliacao → id_inscricao</td><td>12 métricas funcionais; ciclo de 120 dias (RN04)</td></tr>
+  </table></div>
+
+  <h3>Tabelas operacionais</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>Tabela</th><th>Chave</th><th>Destaque</th></tr>
+    <tr><td><code>barco</code></td><td>id_barco</td><td>Nome único (case-insensitive). Nova na v3.3.</td></tr>
+    <tr><td><code>inscricao_programa</code></td><td>id_inscricao → id_participante + id_programa</td><td>id_barco, turma, cargo, especialização leme/tambor; desligamento = soft delete</td></tr>
+    <tr><td><code>aula</code></td><td>id_aula → id_programa</td><td>tipo_aula (raia/indoor/online); <code>link_aula</code> visível só pela equipe; cancelamento só gestão_1</td></tr>
+    <tr><td><code>registro_frequencia</code></td><td>id_frequencia → (id_participante, id_aula)</td><td>status P/F/J/CSP/PRE; FC e PA opcionais; PSE imutável após registro</td></tr>
+    <tr><td><code>justificativa_falta</code></td><td>id_justificativa → id_frequencia</td><td>texto OU arquivo OU ambos; deferimento → F vira J</td></tr>
+  </table></div>
+
+  <h3>Constraints e índices relevantes</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>Nome</th><th>Tabela</th><th>Regra</th></tr>
+    <tr><td><code>uq_capita_por_barco</code></td><td>inscricao_programa</td><td>1 Capitã ativa por barco no REMAMA</td></tr>
+    <tr><td><code>uq_inscricao_ativa</code></td><td>inscricao_programa</td><td>1 inscrição ativa por participante por programa</td></tr>
+    <tr><td><code>uq_frequencia_aula</code></td><td>registro_frequencia</td><td>1 linha por (participante, aula)</td></tr>
+    <tr><td><code>ck_sintoma_campos</code></td><td>sintoma</td><td>Campos mutuamente exclusivos por tipo de sintoma</td></tr>
+    <tr><td><code>ck_justificativa_conteudo</code></td><td>justificativa_falta</td><td>motivo IS NOT NULL OR arquivo_url IS NOT NULL</td></tr>
+    <tr><td><code>ck_atestado_aprovado_data</code></td><td>atestado_medico</td><td>Aprovado exige data_documento preenchida</td></tr>
+    <tr><td><code>ck_alergia_descricao</code></td><td>participante</td><td>possui_alergia = true exige descricao_alergia preenchida</td></tr>
+  </table></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ TAB 4 -->
+<div id="tab-regras" class="panel">
+  <h2>Regras de Negócio — Onde vivem e como funcionam</h2>
+
+  <h3>Matriz de responsabilidade por papel</h3>
+  <div class="matrix">
+    <div class="mh">Ação</div>
+    <div class="mh">Aluna</div>
+    <div class="mh">Professor (gestão_2)</div>
+    <div class="mh">Coord. (gestão_1)</div>
+    <div class="mr lbl">Fazer pré-registro (ONcoFITT)</div>
+    <div class="mr mc y">✓</div><div class="mr mc n">✗</div><div class="mr mc n">✗</div>
+    <div class="mr lbl">Lançar P / F / CSP</div>
+    <div class="mr mc n">✗</div><div class="mr mc y">✓</div><div class="mr mc n">✗</div>
+    <div class="mr lbl">Registrar PSE (REMAMA)</div>
+    <div class="mr mc n">✗</div><div class="mr mc y">✓</div><div class="mr mc n">✗</div>
+    <div class="mr lbl">Registrar PSE (ONcoFITT, até 24h)</div>
+    <div class="mr mc y">✓</div><div class="mr mc y">✓</div><div class="mr mc n">✗</div>
+    <div class="mr lbl">Deferir / indeferir justificativa</div>
+    <div class="mr mc n">✗</div><div class="mr mc y">✓</div><div class="mr mc y">✓</div>
+    <div class="mr lbl">Aprovar / rejeitar atestado</div>
+    <div class="mr mc n">✗</div><div class="mr mc n">✗</div><div class="mr mc y">✓</div>
+    <div class="mr lbl">Cancelar aula</div>
+    <div class="mr mc n">✗</div><div class="mr mc n">✗</div><div class="mr mc y">✓</div>
+    <div class="mr lbl">Alterar CID-O / lateralidade</div>
+    <div class="mr mc n">✗</div><div class="mr mc n">✗</div><div class="mr mc y">✓ + senha ADM</div>
+    <div class="mr lbl">Desligar inscrição / participante</div>
+    <div class="mr mc n">✗</div><div class="mr mc n">✗</div><div class="mr mc y">✓ + senha ADM</div>
+    <div class="mr lbl">Editar próprio cadastro (endereço, contato, medicamentos)</div>
+    <div class="mr mc y">✓ (ALT-01/03)</div><div class="mr mc n">✗</div><div class="mr mc n">✗</div>
+    <div class="mr lbl">Enviar atestado</div>
+    <div class="mr mc y">✓ (→ pendente)</div><div class="mr mc n">✗</div><div class="mr mc n">✗</div>
+  </div>
+
+  <h3>RN01 — Fórmula de assiduidade</h3>
+  <div class="card">
+    <pre>assiduidade (%) = P / (aulas_realizadas − J − CSP) × 100</pre>
+    <p>Aulas canceladas e PRE não confirmado ficam <strong>fora</strong> do denominador. Quando o denominador é zero (todas as presenças foram J), a assiduidade retorna <code>NULL</code> — e não 100% nem 0%. Alerta dispara abaixo de 60%. Implementada em <code>vw_assiduidade_programa</code>.</p>
+  </div>
+
+  <h3>RN02 — Validade do atestado: 180 dias corridos</h3>
+  <div class="card">
+    <p>A função <code>fn_participante_apto(id_participante, data)</code> retorna <code>TRUE</code> se existe atestado com <code>status_validacao = 'aprovado'</code> e <code>data_documento BETWEEN data − 180 AND data</code>. Se a participante tem radioterapia em manutenção (<code>ficha_medica.radioterapia_em_manutencao = TRUE</code>), o atestado precisa ser do tipo <code>radioterapia_manutencao</code>.</p>
+    <p><strong>Bloqueios:</strong> pré-registro (PRE), conversão de PRE para P, e confirmação de P direto — todos chamam <code>fn_participante_apto</code> com a <strong>data da aula</strong>. Atestado vencido não desativa a participante; apenas bloqueia a prática.</p>
+  </div>
+
+  <h3>RN05 — Limite de 100 presenças por aula no ONcoFITT</h3>
+  <div class="card">
+    <p>A trigger <code>trg_validar_frequencia_status</code> faz <code>SELECT … FOR UPDATE</code> na linha da aula antes de contar, serializando sessões concorrentes. A 101ª tentativa de confirmação de presença (P) recebe exceção. CSP, F e PRE não contam no limite.</p>
+    <div class="callout callout-info">Em testes com duas sessões simultâneas disputando as posições 100 e 101, a posição 100 foi confirmada e a posição 101 foi bloqueada — sem exceção silenciosa nem corrida de dados.</div>
+  </div>
+
+  <h3>RN08 — Contato de emergência obrigatório para ativação</h3>
+  <div class="card">
+    <p>Ativar uma participante (status → 1) sem os três campos de contato de emergência (<code>contato_emergencia_nome</code>, <code>contato_emergencia_tel</code>, <code>contato_emergencia_parentesco</code>) gera exceção. O campo <code>parentesco</code> é <code>NOT NULL</code> na tabela, impedindo inserção incompleta.</p>
+  </div>
+
+  <h3>RN10 — Ações críticas e senha de ADM</h3>
+  <div class="card">
+    <p>O backend executa <code>SET LOCAL app.adm_confirmado = 'on'</code> na mesma transação da ação crítica, após validar a senha. A função <code>fn_adm_confirmado()</code> lê esse setting. Sem ele, as seguintes ações falham no banco:</p>
+    <ul style="margin:8px 0 0 16px">
+      <li>Encerrar inscrição (<code>UPDATE inscricao_programa SET data_desligamento</code>)</li>
+      <li>Desligar participante (status → 4, manual)</li>
+      <li>Alterar <code>id_tipo_cancer</code> ou <code>mamas_afetadas</code> quando já preenchidos</li>
+    </ul>
+  </div>
+
+  <h3>RN13 — Tipo de aula</h3>
+  <div class="card">
+    <div class="tbl-wrap"><table>
+      <tr><th>Tipo</th><th>Programa</th><th>Situação</th></tr>
+      <tr><td><code>raia</code></td><td>REMAMA</td><td>Aula normal na pista de dragon boat</td></tr>
+      <tr><td><code>indoor</code></td><td>REMAMA</td><td>Chuva ou impossibilidade — <strong>conta como realizada</strong>, não cancela</td></tr>
+      <tr><td><code>online</code></td><td>ONcoFITT</td><td>Exclusivo do ONcoFITT; qualquer outro tipo é recusado</td></tr>
+    </table></div>
+  </div>
+
+  <h3>Auditoria automática</h3>
+  <div class="card">
+    <p>Toda inserção, atualização e deleção em qualquer tabela de negócio (exceto a própria <code>auditoria_sistema</code>) gera uma linha em <code>auditoria_sistema</code> via trigger <code>trg_auditar_*</code>. O campo <code>senha_hash</code> é removido do JSON antes de gravar. Apenas gestão_1 lê o log.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ TAB 5 -->
+<div id="tab-backend" class="panel">
+  <h2>Guia para o Backend</h2>
+
+  <h3>Arquitetura de conexão</h3>
+  <div class="card">
+    <p>O backend <strong>não usa</strong> as credenciais de service_role nem a Data API (PostgREST) do Supabase para operações de negócio. Ele conecta diretamente ao PostgreSQL via connection string com um usuário de login que é membro do papel <code>app_backend</code> (NOINHERIT).</p>
+    <pre>-- Criar na Supabase (SQL Editor, como postgres):
+CREATE ROLE backend_login LOGIN PASSWORD 'senha-forte';
+GRANT app_participante, app_gestao_1, app_gestao_2 TO app_backend;
+GRANT app_backend TO backend_login;</pre>
+    <div class="callout callout-warn">
+      <strong>NOINHERIT é essencial.</strong> Sem ele, a conta de conexão herdaria os privilégios de todos os papéis e ignoraria o controle de SET LOCAL ROLE. Com NOINHERIT, a sessão só "enxerga" o banco após o SET ROLE explícito.
+    </div>
+  </div>
+
+  <h3>Padrão de requisição (por rota autenticada)</h3>
+  <pre>-- Ao receber o JWT do Supabase Auth:
+BEGIN;
+  -- 1. Traduzir sub (UUID) para contexto interno
+  SELECT * FROM fn_contexto_usuario('&lt;auth_user_id UUID&gt;');
+  --    → {id_usuario, nivel, id_participante, id_funcionario, id_status, apto_pratica, programas_ativos}
+
+  -- 2. Configurar sessão
+  SET LOCAL ROLE app_&lt;nivel&gt;;                         -- app_participante | app_gestao_1 | app_gestao_2
+  SELECT set_config('app.id_usuario', '&lt;id_usuario&gt;', true);
+
+  -- 3. Para ações críticas (RN10):
+  SELECT set_config('app.adm_confirmado', 'on', true); -- somente após validar senha de ADM
+
+  -- 4. Executar a operação de negócio
+  ...
+
+  -- 5. Registrar login (opcional, a cada nova sessão):
+  SELECT fn_registrar_login(&lt;id_usuario&gt;);
+COMMIT;</pre>
+
+  <h3>Login por CPF ou e-mail (RF01)</h3>
+  <pre>-- 1. Usuária digita CPF ou e-mail
+-- 2. Backend chama:
+SELECT email, auth_user_id, ativo FROM fn_resolver_login(:identificador);
+-- 3. Se ativo = true, chama Supabase Auth:
+--    supabase.auth.signInWithPassword({ email, password })
+-- 4. Recebe JWT → extrai sub → chama fn_contexto_usuario(sub)
+-- Nunca revelar se o identificador existe (resposta genérica para o frontend)</pre>
+
+  <h3>Tratar erros do banco no frontend</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>Mensagem de exceção</th><th>Código sugerido</th><th>Mensagem para a usuária</th></tr>
+    <tr><td>Atestado ausente, não aprovado ou vencido…</td><td>ATESTADO_INVALIDO</td><td>"Seu atestado médico está vencido ou pendente de aprovação."</td></tr>
+    <tr><td>ONcoFITT: limite de 100 presenças confirmadas</td><td>AULA_LOTADA</td><td>"Esta aula já atingiu o limite de participantes."</td></tr>
+    <tr><td>Use "Entrar na aula" antes de abrir a sala</td><td>PRE_REGISTRO_PENDENTE</td><td>"Clique em 'Entrar na aula' primeiro."</td></tr>
+    <tr><td>O professor ainda não publicou o link</td><td>LINK_INDISPONIVEL</td><td>"O link da aula ainda não foi publicado."</td></tr>
+    <tr><td>RN08: contato de emergência…</td><td>CONTATO_INCOMPLETO</td><td>"Complete o contato de emergência antes de ativar."</td></tr>
+    <tr><td>RN10: o desligamento exige confirmação de senha ADM</td><td>ADM_REQUERIDO</td><td>"Digite a senha de ADM para continuar."</td></tr>
+    <tr><td>PSE imutável após registro</td><td>PSE_IMUTAVEL</td><td>"O PSE desta aula já foi registrado e não pode ser alterado."</td></tr>
+  </table></div>
+
+  <h3>Fluxo completo: "Entrar na aula" (ONcoFITT)</h3>
+  <div class="flow">
+    <div class="flow-step">Aluna clica "Entrar"</div><div class="flow-arrow">→</div>
+    <div class="flow-step">INSERT registro_frequencia (PRE)</div><div class="flow-arrow">→</div>
+    <div class="flow-step">Trigger valida aula em andamento + atestado + link existe</div><div class="flow-arrow">→</div>
+    <div class="flow-step">SELECT fn_link_aula(id_aula)</div><div class="flow-arrow">→</div>
+    <div class="flow-step">Redireciona para o Meet/Zoom</div>
+  </div>
+
+  <h3>Renovação de atestado</h3>
+  <div class="flow">
+    <div class="flow-step">Aluna faz upload</div><div class="flow-arrow">→</div>
+    <div class="flow-step">INSERT atestado_medico (pendente)</div><div class="flow-arrow">→</div>
+    <div class="flow-step">Coord. aprova</div><div class="flow-arrow">→</div>
+    <div class="flow-step">UPDATE (aprovado) — trigger preenche validador e data</div><div class="flow-arrow">→</div>
+    <div class="flow-step">trigger atualiza status participante</div>
+  </div>
+
+  <h3>Variáveis de GUC usadas</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>Variável</th><th>Escopo</th><th>Quem define</th><th>Uso</th></tr>
+    <tr><td><code>app.id_usuario</code></td><td>LOCAL (por transação)</td><td>Backend</td><td>Identifica o autor de todas as operações auditadas</td></tr>
+    <tr><td><code>app.adm_confirmado</code></td><td>LOCAL</td><td>Backend (após senha)</td><td>Libera ações críticas (RN10)</td></tr>
+    <tr><td><code>app.origem_auditoria</code></td><td>LOCAL</td><td>Script de migração</td><td>Marca registros históricos como 'MIGRACAO' na auditoria</td></tr>
+  </table></div>
+
+  <h3>Supabase Free — limites relevantes</h3>
+  <div class="callout callout-warn">
+    <strong>Projeto pausa após 1 semana sem requisições.</strong> Para produção real, migrar para o plano Pro (~US$25/mês) antes de entrar com dados reais de participantes. O Pro inclui backup diário de 7 dias e sem pausa automática.<br><br>
+    <strong>SMTP padrão:</strong> taxa muito baixa de e-mails por hora. Configure SMTP próprio (Resend tem tier gratuito generoso) em Project → Settings → Auth → SMTP Provider.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ TAB 6 -->
+<div id="tab-arquitetura" class="panel">
+  <h2>Arquitetura & UX</h2>
+
+  <h3>Stack recomendada</h3>
+  <div class="card-grid">
+    <div class="card"><h4>Banco</h4><p>PostgreSQL 15+ (Supabase). DDL v3.3.1 carregado no banco do projeto. Fuso: <code>America/Sao_Paulo</code>.</p></div>
+    <div class="card"><h4>Auth</h4><p>Supabase Auth. JWT validado pelo backend. Login por e-mail ou CPF via <code>fn_resolver_login</code>.</p></div>
+    <div class="card"><h4>Backend</h4><p>Next.js (App Router, server-side). Conexão direta ao PostgreSQL via <code>pg</code> ou <code>postgres.js</code>. Não usar PostgREST para operações de negócio.</p></div>
+    <div class="card"><h4>Storage</h4><p>Supabase Storage para atestados e anexos de justificativa. Guardar apenas a URL no campo <code>arquivo_url TEXT</code>.</p></div>
+  </div>
+
+  <h3>Papéis e o que cada um vê</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>Papel SQL</th><th>Quem é</th><th>Acesso</th></tr>
+    <tr><td><code>app_participante</code></td><td>Aluna inscrita</td><td>Próprios dados, calendário, frequência, PSE (ONcoFITT), upload de atestado, auto-edição de cadastro, pré-registro</td></tr>
+    <tr><td><code>app_gestao_2</code></td><td>Professor/a</td><td>Chamada (P/F/CSP), PSE (REMAMA), deferimento de justificativa, link da aula, visão de todas as participantes</td></tr>
+    <tr><td><code>app_gestao_1</code></td><td>Coordenadora</td><td>Tudo da gestão_2 + aprovação de atestado, cancelamento de aula, status global, CID-O, desligamento, leitura de auditoria</td></tr>
+  </table></div>
+
+  <h3>RLS — como funciona na prática</h3>
+  <div class="card">
+    <p>Cada tabela clínica e operacional tem Row Level Security habilitado. A política <code>equipe_*</code> permite que gestão_1 e gestão_2 vejam todas as linhas, mas somente se o papel SQL da sessão bater com o nível registrado em <code>usuario_acesso</code>. A política <code>aluna_ler_*</code> filtra por <code>id_participante = app_participante_id()</code>.</p>
+    <p>As views usam <code>WITH (security_invoker = true)</code>, o que significa que os GRANTs e as políticas RLS das tabelas de origem são aplicadas com as permissões do papel que chamou a view — não do dono. Uma aluna que chame <code>vw_assiduidade_programa</code> só verá os próprios dados.</p>
+  </div>
+
+  <h3>Telas e fluxos de UX sugeridos</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>Tela</th><th>Papel</th><th>Dados</th><th>Observações</th></tr>
+    <tr><td>Dashboard da aluna</td><td>app_participante</td><td><code>vw_assiduidade_programa</code>, <code>vw_participante_apto</code>, próximas aulas</td><td>Mostrar banner se <code>apto_pratica = false</code></td></tr>
+    <tr><td>Calendário de aulas</td><td>Todos</td><td><code>vw_calendario_aulas</code></td><td>RLS: aluna vê só aulas dos programas com inscrição ativa</td></tr>
+    <tr><td>Chamada (professor)</td><td>app_gestao_2</td><td><code>registro_frequencia</code> + <code>participante</code> + <code>vw_participante_apto</code></td><td>Destacar sem atestado vigente; bloquear P para inaptas</td></tr>
+    <tr><td>Fila de atestados</td><td>app_gestao_1</td><td><code>atestado_medico WHERE status_validacao='pendente'</code></td><td>Ordenar por <code>anexado_em</code>; mostrar dias restantes</td></tr>
+    <tr><td>Perfil da participante</td><td>app_gestao_1/2</td><td><code>vw_participante_acompanhamento</code></td><td>Histórico clínico, avaliações, presença</td></tr>
+    <tr><td>Entrar na aula (ONcoFITT)</td><td>app_participante</td><td><code>fn_link_aula(id_aula)</code></td><td>Tratar 3 estados de erro distintos</td></tr>
+    <tr><td>Meu progresso</td><td>app_participante</td><td><code>vw_frequencia_programa</code>, <code>avaliacao</code></td><td>Evoluções de avaliação física ao longo do tempo</td></tr>
+    <tr><td>Relatório de assiduidade</td><td>app_gestao_1/2</td><td><code>vw_assiduidade_programa WHERE alerta_assiduidade</code></td><td>Filtrar por barco: buscar ids por inscricao_programa, filtrar na view</td></tr>
+  </table></div>
+
+  <h3>Padrão de consulta para tela de barco</h3>
+  <div class="card">
+    <p>A <code>vw_assiduidade_programa</code> não tem coluna de barco. Para listar a assiduidade de um barco específico, o backend deve primeiro buscar os ids de inscrição e depois filtrar a view:</p>
+    <pre>-- ✅ Padrão eficiente
+SELECT * FROM vw_assiduidade_programa
+WHERE id_inscricao = ANY(
+  SELECT id_inscricao FROM inscricao_programa
+  WHERE id_barco = :id_barco AND data_desligamento IS NULL
+);</pre>
+    <p>Não fazer JOIN da view com <code>inscricao_programa</code> — a view já faz esse join internamente e duplicaria o custo.</p>
+  </div>
+
+  <h3>Segurança adicional a configurar no Supabase</h3>
+  <div class="callout callout-warn">
+    <strong>Revogar anon/authenticated das tabelas de negócio.</strong> O Supabase concede SELECT a <code>anon</code> e <code>authenticated</code> por padrão em tabelas novas. Execute após o DDL:
+    <pre>REVOKE ALL ON ALL TABLES IN SCHEMA public FROM anon, authenticated;
+REVOKE ALL ON ALL SEQUENCES IN SCHEMA public FROM anon, authenticated;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public REVOKE ALL ON TABLES FROM anon, authenticated;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public REVOKE ALL ON SEQUENCES FROM anon, authenticated;</pre>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ TAB 7 -->
+<div id="tab-dados" class="panel">
+  <h2>Ciência de Dados</h2>
+
+  <h3>O que está disponível</h3>
+  <p class="lead">Todos os dados clínicos, físicos e de frequência estão no banco com rastreabilidade temporal. O acesso analítico é feito por papel separado, sem PII.</p>
+
+  <div class="tbl-wrap"><table>
+    <tr><th>View / Tabela</th><th>Uso analítico</th><th>PII?</th></tr>
+    <tr><td><code>avaliacao</code></td><td>12 métricas funcionais por avaliação, por inscrição. Baseline + ciclos de 120 dias.</td><td>Sim (id_participante rastreável)</td></tr>
+    <tr><td><code>dados_antropometricos</code></td><td>Peso, altura, cintura, quadril ao longo do tempo. IMC e RCQ calculáveis.</td><td>Sim</td></tr>
+    <tr><td><code>ficha_medica</code></td><td>Tipo de câncer (CID-O), lateralidade, datas de tratamento, comorbidades, HT/RT.</td><td>Altamente sensível</td></tr>
+    <tr><td><code>sintoma</code></td><td>Evolução de linfedema (grau 1-4) e neuropatia ao longo do tempo.</td><td>Sim</td></tr>
+    <tr><td><code>vw_pesquisador_evolucao</code></td><td>View pseudonimizada: sem nome, CPF, contato, endereço. Combina avaliação + antropometria + frequência + diagnóstico + tipo de câncer.</td><td><strong>Não (PII removida)</strong></td></tr>
+    <tr><td><code>vw_assiduidade_programa</code></td><td>Assiduidade por inscrição, alerta de &lt;60%, contagem de P/F/J/CSP.</td><td>Sim (id_participante)</td></tr>
+  </table></div>
+
+  <h3>Colunas da <code>vw_pesquisador_evolucao</code></h3>
+  <div class="card">
+    <p>Disponível para o papel <code>app_pesquisador</code> (somente leitura, sem acesso a outras tabelas):</p>
+    <pre>id_participante (pseudônimo numérico) | sexo | idade_anos
+id_programa | nome_programa
+numero_avaliacao | ano | data_avaliacao
+fc_repouso | pse | sentar_levantar_reps | mmss_ld_reps | mmss_le_reps
+marcha_passadas | amplitude_braco_cm | cond_aerobico | forca | equilibrio
+peso_kg | altura_m | imc | rcq
+tipo_cancer | cid_o | mamas_afetadas | pos_menopausa
+meses_desde_diagnostico | recidiva | hormonioterapia_em_andamento | radioterapia_em_manutencao
+presencas_ate_avaliacao | faltas_ate_avaliacao | assiduidade_pct_ate_avaliacao</pre>
+  </div>
+
+  <h3>Perguntas que o banco já responde hoje</h3>
+  <div class="card-grid">
+    <div class="card"><h4>Evolução funcional</h4><p>Comparar métricas de força, flexibilidade e condicionamento entre a avaliação baseline e as avaliações subsequentes (ciclos de 120 dias).</p></div>
+    <div class="card"><h4>Impacto da assiduidade</h4><p>Correlacionar frequência de participação com melhora nos indicadores funcionais ao longo do tempo.</p></div>
+    <div class="card"><h4>Perfil clínico vs. evolução</h4><p>Analisar se tipo de câncer, lateralidade, presença de HT/RT ou linfedema estão associados a diferentes trajetórias de melhora.</p></div>
+    <div class="card"><h4>Linfedema e neuropatia</h4><p>Acompanhar prevalência, grau e remissão de sintomas ao longo do tempo de participação no programa.</p></div>
+    <div class="card"><h4>IMC e composição</h4><p>Evolução de peso, cintura, quadril e RCQ ao longo das medições — dado cruzável com avaliações físicas.</p></div>
+    <div class="card"><h4>Retenção</h4><p>Identificar perfis de participantes com maior ou menor risco de abandono (assiduidade abaixo de 60%).</p></div>
+  </div>
+
+  <h3>Consultas analíticas de partida</h3>
+  <pre>-- Evolução funcional por participante (% em relação ao baseline)
+SELECT id_participante, numero_avaliacao, dias_desde_baseline,
+       sentar_levantar_var_pct, mmss_ld_var_pct, marcha_var_pct
+FROM vw_avaliacao_comparativo
+ORDER BY id_participante, numero_avaliacao;
+
+-- Prevalência de linfedema ativo por grau
+SELECT grau, COUNT(*) AS participantes_com_linfedema_ativo
+FROM (
+    SELECT DISTINCT ON (id_participante) grau
+    FROM sintoma WHERE tipo_sintoma = 'linfedema' AND presente = TRUE
+    ORDER BY id_participante, registrado_em DESC
+) t GROUP BY grau ORDER BY grau;
+
+-- Assiduidade mediana por tipo de câncer (via vw_pesquisador_evolucao)
+SELECT tipo_cancer,
+       PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY assiduidade_pct_ate_avaliacao) AS mediana_pct,
+       COUNT(DISTINCT id_participante) AS n
+FROM vw_pesquisa_evolucao
+GROUP BY tipo_cancer ORDER BY mediana_pct DESC;</pre>
+
+  <h3>Pontos de atenção para análise</h3>
+  <div class="callout callout-warn">
+    <strong>Atestado incompleto pode distorcer assiduidade.</strong> Se o professor não registrar falta (F) para quem não apareceu, a aula fica sem linha de frequência para aquela participante — e a falta não entra no denominador. Padronizar o fluxo de chamada é essencial para a qualidade dos dados.
+  </div>
+  <div class="callout callout-info">
+    <strong>Linha do tempo dos sintomas.</strong> A tabela <code>sintoma</code> é um log histórico (append-only por convenção): a situação atual é a linha mais recente por <code>(id_participante, tipo_sintoma)</code>. Use <code>DISTINCT ON</code> ou <code>LAST_VALUE</code> para pegar o estado corrente.
+  </div>
+  <div class="callout callout-info">
+    <strong>Baseline de avaliação.</strong> A primeira avaliação de cada inscrição é a baseline (ordenar por <code>data_avaliacao, id_avaliacao</code>). Se uma participante for reinscrita após desligamento, a nova inscrição tem seu próprio baseline.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ TAB 8 -->
+<div id="tab-testes" class="panel">
+  <h2>Testes Automatizados</h2>
+
+  <p class="lead">O arquivo <code>tests_v3_3_1.sql</code> contém 49 testes que validam o DDL v3.3.1 num PostgreSQL 16 limpo. Todos passam.</p>
+
+  <h3>Como executar</h3>
+  <pre>-- 1. Criar banco limpo
+createdb remama_test
+
+-- 2. Carregar o DDL
+psql -d remama_test -f DDL_v3_3_1.sql
+
+-- 3. Executar os testes
+psql -d remama_test -f tests_v3_3_1.sql
+
+-- 4. Ver resumo
+-- A última consulta do script lista os blocos e o total de falhas.</pre>
+
+  <div class="callout callout-info">
+    Os testes usam <code>\set ON_ERROR_STOP off</code> para continuar mesmo com exceções, e coletam resultados em uma tabela <code>resultado</code> com colunas <code>ok BOOLEAN</code>, <code>esperado</code> e <code>obtido</code>. Um teste de "deve falhar" passa quando o banco rejeita a operação com exceção.
+  </div>
+
+  <h3>Cobertura por bloco</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>Bloco</th><th>O que cobre</th><th>Testes</th></tr>
+    <tr><td><span class="pill pill-green">A — Atestado</span></td><td>Upload pendente, bloqueio de upload aprovado, aprovação só por gestão_1, imutabilidade da decisão, validade 180/181 dias, data futura</td><td>8</td></tr>
+    <tr><td><span class="pill pill-blue">B — Ativação</span></td><td>Ativação com dados completos, bloqueio por falta de atestado/contato, status automático (trigger)</td><td>5</td></tr>
+    <tr><td><span class="pill pill-amber">C — Capacidade</span></td><td>100 presenças inseridas em lote, bloqueio da 101ª, CSP acima de 100 permitido</td><td>3</td></tr>
+    <tr><td><span class="pill pill-purple">D — Justificativa</span></td><td>Conteúdo vazio bloqueado, só texto, só arquivo, deferimento F→J, imutabilidade, bloqueio por papel</td><td>6</td></tr>
+    <tr><td><span class="pill pill-green">E — Estados & PSE</span></td><td>P/F/CSP pelo professor, PRE pela aluna, horário da aula, conversão PRE→P, PSE imutável</td><td>7</td></tr>
+    <tr><td><span class="pill pill-blue">F — Indicadores</span></td><td>Fórmula RN01 (100%), comportamento com denominador zero</td><td>2</td></tr>
+    <tr><td><span class="pill pill-amber">G — Guarnição</span></td><td>Bloqueio de segunda Capitã no mesmo barco, Capitã em barco diferente permitida</td><td>2</td></tr>
+    <tr><td><span class="pill pill-purple">H — Sintoma</span></td><td>Grau 4 válido (v3.3.1), grau 5 bloqueado, grau 3 (regressão), neuropatia com localização, campos cruzados, RLS</td><td>6</td></tr>
+    <tr><td><span class="pill pill-green">I — Link da aula</span></td><td>Coluna link_aula inacessível à aluna, cancelamento só por gestão_1</td><td>3</td></tr>
+    <tr><td><span class="pill pill-blue">J — CID-O</span></td><td>Bloqueio de alteração por gestão_2, alteração por gestão_1 permitida</td><td>2</td></tr>
+    <tr><td><span class="pill pill-amber">K — Auto-edição</span></td><td>Aluna edita profissão/medicamentos, bloqueio de nome e ficha oncológica</td><td>3</td></tr>
+    <tr><td><span class="pill pill-purple">L — Auditoria</span></td><td>Log registra operações, senha_hash ausente do JSON</td><td>2</td></tr>
+  </table></div>
+
+  <h3>O que não está coberto (testes manuais ou de integração)</h3>
+  <div class="tbl-wrap"><table>
+    <tr><th>Item</th><th>Por quê não está no SQL</th></tr>
+    <tr><td>Fluxo de login por CPF</td><td>Depende do Supabase Auth — teste de integração no ambiente real</td></tr>
+    <tr><td>Upload de arquivo (atestado, justificativa)</td><td>Depende do Supabase Storage — testar via SDK no backend</td></tr>
+    <tr><td>Sessões concorrentes (corrida de dados)</td><td>Testado manualmente; requer dois processos psql simultâneos</td></tr>
+    <tr><td>Senha de ADM (RN10)</td><td>A verificação da senha vive no backend — testar na camada de aplicação</td></tr>
+    <tr><td>Pausa do projeto Supabase Free</td><td>Teste operacional — fazer uma requisição na segunda semana sem uso</td></tr>
+    <tr><td>Fuso America/Sao_Paulo</td><td>Verificar após o deploy: <code>SHOW timezone;</code> no banco de produção</td></tr>
+  </table></div>
+
+  <h3>Antes de ir para produção — checklist</h3>
+  <div class="card">
+    <p>✅ <code>psql -f DDL_v3_3_1.sql</code> sem erros em banco limpo<br>
+       ✅ <code>psql -f tests_v3_3_1.sql</code> — 49/49 ok<br>
+       ✅ SMTP próprio configurado no Supabase<br>
+       ✅ <code>ALTER DATABASE ... SET timezone TO 'America/Sao_Paulo'</code><br>
+       ✅ <code>REVOKE</code> em <code>anon</code> e <code>authenticated</code> executado<br>
+       ✅ Papel <code>backend_login</code> criado; credencial em variável de ambiente<br>
+       ✅ Backup manual feito antes da primeira carga de dados reais<br>
+       ✅ Plano Pro do Supabase ativado (ou janela de pausa monitorada)</p>
+  </div>
+</div>
+
+<script>
+function show(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.currentTarget.classList.add('active');
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>

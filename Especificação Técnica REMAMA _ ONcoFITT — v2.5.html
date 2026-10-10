@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Especificação Técnica REMAMA / ONcoFITT — v2.5</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🩷</text></svg>">
+<style>
+:root {
+  --brand: #E02475;
+  --brand-dark: #b31d5f;
+  --brand-light: #fce8f1;
+  --ink: #1a1a2e;
+  --ink-2: #3d3d5c;
+  --ink-3: #6b6b8a;
+  --bg: #ffffff;
+  --bg-2: #f8f8fc;
+  --bg-3: #f0f0f8;
+  --border: #e0e0ec;
+  --green: #0a7c4f;
+  --green-bg: #e6f5ee;
+  --amber: #7a4f00;
+  --amber-bg: #fff3d6;
+  --blue: #1a4e7a;
+  --blue-bg: #e6f0fa;
+  --radius: 8px;
+  --shadow: 0 2px 12px rgba(26,26,46,.08);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --brand: #f05a9e;
+    --brand-dark: #e02475;
+    --brand-light: #2d0a1a;
+    --ink: #eeeef8;
+    --ink-2: #c0c0d8;
+    --ink-3: #8888aa;
+    --bg: #111118;
+    --bg-2: #18181f;
+    --bg-3: #22222c;
+    --border: #2e2e3e;
+    --green: #34c77b;
+    --green-bg: #0a2218;
+    --amber: #f5c842;
+    --amber-bg: #1e1600;
+    --blue: #60a8e8;
+    --blue-bg: #0a1928;
+  }
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{
+  font-family:'Inter','Segoe UI',system-ui,sans-serif;
+  font-size:15px;line-height:1.65;
+  color:var(--ink);background:var(--bg);
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+a{color:var(--brand);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ── Header ── */
+.site-header{
+  background:var(--brand);color:#fff;
+  padding:20px 24px 16px;
+  padding-top:calc(env(safe-area-inset-top,0px) + 20px);
+}
+.site-header h1{font-size:1.15rem;font-weight:700;letter-spacing:-.01em}
+.site-header p{font-size:.82rem;opacity:.85;margin-top:2px}
+.badge{
+  display:inline-block;background:rgba(255,255,255,.22);
+  color:#fff;font-size:.72rem;font-weight:600;
+  padding:2px 8px;border-radius:20px;margin-top:6px
+}
+
+/* ── Tab nav ── */
+.tabs-nav{
+  display:flex;overflow-x:auto;gap:0;
+  background:var(--bg-2);border-bottom:2px solid var(--border);
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:100;
+}
+.tabs-nav::-webkit-scrollbar{height:3px}
+.tabs-nav::-webkit-scrollbar-thumb{background:var(--border)}
+.tab-btn{
+  flex-shrink:0;padding:11px 16px;
+  font-size:.8rem;font-weight:600;color:var(--ink-3);
+  background:none;border:none;border-bottom:3px solid transparent;
+  cursor:pointer;white-space:nowrap;transition:color .15s,border-color .15s;
+  margin-bottom:-2px;
+}
+.tab-btn:hover{color:var(--brand)}
+.tab-btn.active{color:var(--brand);border-bottom-color:var(--brand)}
+
+/* ── Content ── */
+.tab-panel{display:none;max-width:860px;margin:0 auto;padding:28px 20px 60px}
+.tab-panel.active{display:block}
+
+h2{font-size:1.3rem;font-weight:700;color:var(--ink);margin:32px 0 10px;padding-top:8px;border-top:1px solid var(--border)}
+h2:first-child{margin-top:0;border-top:none}
+h3{font-size:1rem;font-weight:700;color:var(--ink-2);margin:24px 0 8px}
+h4{font-size:.88rem;font-weight:600;color:var(--ink-3);margin:16px 0 6px;text-transform:uppercase;letter-spacing:.04em}
+p{margin-bottom:10px}
+ul,ol{padding-left:20px;margin-bottom:10px}
+li{margin-bottom:4px}
+code{font-size:.82em;background:var(--bg-3);border:1px solid var(--border);border-radius:4px;padding:1px 5px;font-family:'Fira Mono','Courier New',monospace}
+pre{background:var(--bg-3);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;overflow-x:auto;margin:10px 0}
+pre code{background:none;border:none;padding:0;font-size:.82rem}
+
+/* ── Cards ── */
+.card{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin:12px 0}
+.card-green{background:var(--green-bg);border-color:var(--green)}
+.card-amber{background:var(--amber-bg);border-color:var(--amber)}
+.card-blue{background:var(--blue-bg);border-color:var(--blue)}
+.card-brand{background:var(--brand-light);border-color:var(--brand)}
+.card h4{margin-top:0}
+.card p:last-child,.card ul:last-child{margin-bottom:0}
+
+/* ── Change log ── */
+.change{display:grid;grid-template-columns:auto 1fr;gap:0 16px;padding:14px 0;border-bottom:1px solid var(--border)}
+.change:last-child{border-bottom:none}
+.change-tag{
+  align-self:start;margin-top:3px;
+  font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap
+}
+.tag-corr{background:var(--green-bg);color:var(--green)}
+.tag-novo{background:var(--blue-bg);color:var(--blue)}
+.tag-decisao{background:var(--amber-bg);color:var(--amber)}
+.tag-req{background:var(--brand-light);color:var(--brand-dark)}
+.change-body strong{display:block;font-size:.9rem;margin-bottom:3px;color:var(--ink)}
+.change-body p{font-size:.85rem;color:var(--ink-2);margin:0}
+
+/* ── Tables ── */
+.tbl-wrap{overflow-x:auto;margin:12px 0}
+table{width:100%;border-collapse:collapse;font-size:.84rem}
+th{background:var(--bg-3);font-weight:600;color:var(--ink-2);text-align:left;padding:8px 10px;border-bottom:2px solid var(--border)}
+td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--bg-2)}
+
+/* ── Pills / roles ── */
+.pill{display:inline-block;font-size:.72rem;font-weight:600;padding:1px 7px;border-radius:12px;margin:1px}
+.pill-g1{background:#fce8f1;color:#b31d5f}
+.pill-g2{background:#e6f0fa;color:#1a4e7a}
+.pill-p{background:#e6f5ee;color:#0a7c4f}
+.pill-all{background:var(--bg-3);color:var(--ink-3)}
+
+/* ── Equipe cards ── */
+.team-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:16px 0}
+.team-card{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px}
+.team-card h4{color:var(--brand);margin-bottom:8px}
+.team-card ul{padding-left:16px}
+.team-card li{font-size:.83rem;margin-bottom:3px}
+
+/* ── Misc ── */
+.lead{font-size:1.02rem;color:var(--ink-2);margin-bottom:20px;line-height:1.6}
+.divider{border:none;border-top:1px solid var(--border);margin:20px 0}
+.mono{font-family:'Fira Mono','Courier New',monospace;font-size:.88em}
+.note{font-size:.82rem;color:var(--ink-3);font-style:italic;margin-top:4px}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <h1>REMAMA / ONcoFITT — Especificação Técnica</h1>
+  <p>Projeto de Extensão Universitária · USP · Plataforma de Reabilitação</p>
+  <span class="badge">v2.5 · DDL v3.3.1 · Baseline para Produção</span>
+</header>
+
+<nav class="tabs-nav" role="tablist">
+  <button class="tab-btn active" onclick="show('t0')" role="tab">0 · Changelog</button>
+  <button class="tab-btn" onclick="show('t1')" role="tab">1 · Visão Geral</button>
+  <button class="tab-btn" onclick="show('t2')" role="tab">2 · Perfis</button>
+  <button class="tab-btn" onclick="show('t3')" role="tab">3 · RFs</button>
+  <button class="tab-btn" onclick="show('t4')" role="tab">4 · RNs</button>
+  <button class="tab-btn" onclick="show('t5')" role="tab">5 · Dados</button>
+  <button class="tab-btn" onclick="show('t6')" role="tab">6 · Arquitetura</button>
+  <button class="tab-btn" onclick="show('t7')" role="tab">7 · Guia por Equipe</button>
+  <button class="tab-btn" onclick="show('t8')" role="tab">8 · Rastreabilidade</button>
+  <button class="tab-btn" onclick="show('t9')" role="tab">9 · Decisões</button>
+</nav>
+
+<!-- ══════════════════════════════ TAB 0 ══════════════════════════════ -->
+<div id="t0" class="tab-panel active">
+  <p class="lead">Esta é a versão normativa que substitui o MD v2.4. Cada item abaixo descreve o que foi alterado, <strong>por que a mudança foi necessária</strong> e qual equipe é impactada.</p>
+
+  <div class="card card-amber">
+    <h4>Por que o v2.4 precisou ser revisado?</h4>
+    <p>O DDL foi validado num PostgreSQL 16 real com 181 testes automatizados cobrindo RLS, papéis SQL, triggers e concorrência. Esse processo revelou lacunas entre o que o MD descrevia e o que o banco efetivamente impunha. As alterações abaixo corrigem essas divergências e incorporam as decisões formais da coordenação.</p>
+  </div>
+
+  <h2>Alterações Normativas</h2>
+
+  <div class="change">
+    <span class="change-tag tag-corr">CORREÇÃO</span>
+    <div class="change-body">
+      <strong>RF07 — Status Global: de manual para automático</strong>
+      <p>O MD v2.4 dizia "alterna automaticamente via <code>trg_atualiza_status_participante</code>", mas o DDL v3.1 havia tornado isso manual. A validação confirmou que o fluxo automático é o correto para uso real: sem ele, a coordenação precisaria ativar cada aluna manualmente depois de aprovar o atestado. O DDL v3.3.1 implementa a trigger <code>fn_atualiza_status_participante</code> com as regras completas: <strong>2→1</strong> quando há contato de emergência, atestado aprovado e vigente e inscrição ativa; <strong>1→4</strong> quando a última inscrição ativa é encerrada; <strong>4→1</strong> em novo ingresso (retorno); status 3 (Afastada) é sempre manual pela <code>gestao_1</code>; atestado vencido <em>não</em> altera o status (a aluna segue ativa com <code>apto_pratica = false</code>).</p>
+      <p class="note">Impacto: Equipe 2 (banco), Equipe 3 (backend), Equipe 6 (QA).</p>
+    </div>
+  </div>
+
+  <div class="change">
+    <span class="change-tag tag-corr">CORREÇÃO</span>
+    <div class="change-body">
+      <strong>RN12 — Capitã por Barco, não por Turma</strong>
+      <p>O MD v2.4 usava "turma" como sinônimo de barco. Na realidade, <strong>turma é o horário</strong> (ex.: REMAMA 08h–09h e 09h–10h), e um horário pode ter vários barcos. Tratar turma como barco impedia a formação de múltiplas embarcações no mesmo horário. O DDL v3.3.1 cria a entidade <code>barco</code> e o campo <code>inscricao_programa.id_barco</code>. A regra de 1 Capitã por barco passa a funcionar corretamente via índice único em <code>id_barco</code>.</p>
+      <p class="note">Impacto: Equipe 2 (banco), Equipe 3 (backend — nova tela de gestão de barcos), Equipe 4 (UX — chamada agora filtra por barco).</p>
+    </div>
+  </div>
+
+  <div class="change">
+    <span class="change-tag tag-corr">CORREÇÃO</span>
+    <div class="change-body">
+      <strong>RF06 — Deferimento de Justificativas: gestao_1 e gestao_2</strong>
+      <p>O MD v2.4 atribuía o deferimento exclusivamente à "coordenação" (<code>gestao_1</code>). Na prática, o ONcoFITT tem um volume de alunas que tornaria a fila inviável para uma única pessoa. A alteração estende o deferimento à <code>gestao_2</code> (professores), que já possui visão completa das turmas e contexto para julgar justificativas. A aprovação de atestados médicos <em>permanece</em> exclusiva da <code>gestao_1</code>.</p>
+      <p class="note">Impacto: Equipe 2 (GRANT no banco), Equipe 3 (interface de deferimento para professores).</p>
+    </div>
+  </div>
+
+  <div class="change">
+    <span class="change-tag tag-novo">NOVO</span>
+    <div class="change-body">
+      <strong>RF08 — Link da Sala Virtual (Meet/Zoom)</strong>
+      <p>O botão "Entrar na aula" existia no MD, mas não havia onde armazenar o link da sala. O DDL v3.3.1 adiciona <code>aula.link_aula</code>. A coluna <strong>não é lida diretamente pela aluna</strong> (sem GRANT). O link é entregue pela função <code>fn_link_aula()</code>, que exige: aula em andamento (entre <code>inicio</code> e <code>fim</code>), atestado vigente, e pré-registro já criado. Isso garante que o link nunca vaze antes da aula e que alunas com atestado vencido não o recebam.</p>
+      <p class="note">Impacto: Equipe 2 (banco), Equipe 3 (chamar <code>fn_link_aula</code> no backend, não ler a coluna diretamente), Equipe 4 (botão "Entrar na aula" só aparece no horário da aula).</p>
+    </div>
+  </div>
+
+  <div class="change">
+    <span class="change-tag tag-corr">CORREÇÃO</span>
+    <div class="change-body">
+      <strong>RF06 — Atestado: data futura e aprovação sem data</strong>
+      <p>O DDL v3.2 permitia que uma aluna enviasse um atestado com data futura (que nunca ficaria vigente). Também impedia a <code>gestao_1</code> de aprovar atestados enviados sem <code>data_documento</code>. Ambos os casos foram corrigidos: data futura é recusada na inserção; a <code>gestao_1</code> pode preencher a data enquanto o atestado estiver pendente.</p>
+      <p class="note">Impacto: Equipe 2 (trigger), Equipe 3 (validação no formulário de upload), Equipe 4 (UX do fluxo de aprovação).</p>
+    </div>
+  </div>
+
+  <div class="change">
+    <span class="change-tag tag-corr">CORREÇÃO</span>
+    <div class="change-body">
+      <strong>RF08 — Contorno do limite de 100 presentes bloqueado</strong>
+      <p>O DDL v3.2 limitava corretamente a 101ª presença em INSERT, mas um UPDATE de <code>id_aula</code> ou <code>id_participante</code> permitia mover linhas entre aulas e burlar o limite e a trava de atestado. O acesso de escrita foi restrito a colunas operacionais (<code>id_status_presenca</code>, <code>pse</code>, <code>fc_antes</code>, <code>fc_depois</code>, <code>pa_*</code>), eliminando o contorno.</p>
+      <p class="note">Impacto: Equipe 2 (GRANTs por coluna), Equipe 3 (nunca usar UPDATE em campos estruturais de frequência).</p>
+    </div>
+  </div>
+
+  <div class="change">
+    <span class="change-tag tag-novo">NOVO</span>
+    <div class="change-body">
+      <strong>RF01 — Autenticação via Supabase Auth</strong>
+      <p>O MD v2.4 mencionava recuperação de senha sem definir o mecanismo. O DDL v3.3.1 adiciona <code>usuario_acesso.auth_user_id</code> (UUID do Supabase Auth). A <code>senha_hash</code> passa a ser opcional quando a credencial vive no Supabase Auth. O fluxo de recuperação de senha usa <code>supabase.auth.resetPasswordForEmail()</code> com SMTP próprio (obrigatório no Free — veja Aba 6).</p>
+      <p class="note">Impacto: Equipe 2 (schema), Equipe 3 (integração com Supabase Auth).</p>
+    </div>
+  </div>
+
+  <div class="change">
+    <span class="change-tag tag-decisao">DECISÃO</span>
+    <div class="change-body">
+      <strong>RF05 — Escala de Linfedema: grau 1 a 4</strong>
+      <p>O DDL v3.2 assumiu grau 1–3 sem confirmação clínica. A coordenação médica definiu a escala correta como <strong>grau 1 a 4</strong>. O DDL v3.3.1 aplica <code>CHECK (grau BETWEEN 1 AND 4)</code>.</p>
+      <p class="note">Impacto: Equipe 2 (constraint), Equipe 4 (select de grau no formulário), Equipe 5 (variável categórica nos modelos).</p>
+    </div>
+  </div>
+
+  <div class="change">
+    <span class="change-tag tag-decisao">DECISÃO</span>
+    <div class="change-body">
+      <strong>RN06 — Faixas de PA confirmadas</strong>
+      <p>O MD v2.4 não definia os limites de PA. O DDL v3.3.1 usa sistólica 50–300 mmHg e diastólica 30–200 mmHg. Valores fisiologicamente impossíveis são rejeitados pelo banco.</p>
+      <p class="note">Impacto: Equipe 2 (constraint), Equipe 4 (validação nos campos de PA).</p>
+    </div>
+  </div>
+
+  <div class="change">
+    <span class="change-tag tag-decisao">DECISÃO</span>
+    <div class="change-body">
+      <strong>RN11 — Imutabilidade após PSE e correção sem PSE</strong>
+      <p>Formaliza-se que: (a) depois de registrado o PSE, <strong>presença e PSE não podem mais ser alterados</strong>; (b) enquanto não há PSE, o professor pode corrigir o status de presença (ex.: P digitada por engano vira F); (c) a <code>gestao_1</code> não lança nem corrige presença — apenas o professor (<code>gestao_2</code>). Já estava no banco; agora está normalizado no MD.</p>
+      <p class="note">Impacto: Equipe 3 (UI deve desabilitar edição após PSE), Equipe 4 (estado do botão de correção).</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ TAB 1 ══════════════════════════════ -->
+<div id="t1" class="tab-panel">
+  <p class="lead">Plataforma web para gestão de reabilitação física de mulheres sobreviventes de câncer de mama, operando 100% online via rede 4G/5G.</p>
+
+  <h2>Os dois programas</h2>
+  <div class="tbl-wrap">
+    <table>
+      <tr><th>Programa</th><th>Modalidade</th><th>Local</th><th>Chamada</th><th>Limite</th></tr>
+      <tr><td><strong>REMAMA</strong> (<code>id_programa = 1</code>)</td><td>Barco-Dragão — presencial</td><td>Raia Olímpica · CEPEUSP</td><td>Professor à beira da raia</td><td>Diretriz de 20/barco (sem hard-block)</td></tr>
+      <tr><td><strong>ONcoFITT</strong> (<code>id_programa = 2</code>)</td><td>Funcional — remoto</td><td>Google Meet / Zoom</td><td>Professor na sessão virtual</td><td>Hard-block na 101ª presença confirmada</td></tr>
+    </table>
+  </div>
+
+  <h2>Quem usa</h2>
+  <ul>
+    <li><strong>Aluna / Remadora:</strong> acessa o portal próprio; auto-edita dados cadastrais limitados; entra na aula ONcoFITT; envia justificativas; preenche PSE em até 24h.</li>
+    <li><strong>Professor / Pesquisador (<code>gestao_2</code>):</strong> realiza chamada; registra PA/FC e PSE; publica link da sala; defere justificativas.</li>
+    <li><strong>Coordenação / ADM (<code>gestao_1</code>):</strong> aprova atestados; ativa/inativa cadastros; altera CID-O; cancela aulas; acesso administrativo total.</li>
+  </ul>
+
+  <h2>Stack de produção homologada</h2>
+  <div class="tbl-wrap">
+    <table>
+      <tr><th>Camada</th><th>Tecnologia</th><th>Função</th></tr>
+      <tr><td>Frontend</td><td>Vercel Pro · Next.js 16 · React 19 · Tailwind</td><td>SSR, App Router, exportação XLSX, máscara LGPD</td></tr>
+      <tr><td>Banco</td><td>Supabase Pro · PostgreSQL 15+</td><td>DDL v3.3.1, RLS, triggers, views analíticas</td></tr>
+      <tr><td>Auth</td><td>Supabase Auth</td><td>JWT, sessão segura, recuperação de senha</td></tr>
+      <tr><td>Storage</td><td>Supabase Storage Privado</td><td>Atestados, laudos, justificativas (URLs assinadas)</td></tr>
+      <tr><td>E-mail</td><td>SMTP próprio (ex.: Resend)</td><td>Recuperação de senha (Free: 2 e-mails/h — insuficiente para produção)</td></tr>
+    </table>
+  </div>
+
+  <h2>Personas de navegação</h2>
+  <p>Duas personas visuais (<strong>Aluna</strong> e <strong>Equipe de Gestão</strong>), três papéis técnicos no banco (<code>app_participante</code>, <code>app_gestao_1</code>, <code>app_gestao_2</code>). Pesquisadores usam as telas de gestão com toggle LGPD ativo.</p>
+</div>
+
+<!-- ══════════════════════════════ TAB 2 ══════════════════════════════ -->
+<div id="t2" class="tab-panel">
+  <p class="lead">Três papéis técnicos no banco de dados, dois no frontend. Nenhuma permissão é derivada do programa (REMAMA ou ONcoFITT).</p>
+
+  <h2>Matriz de poderes</h2>
+  <div class="tbl-wrap">
+    <table>
+      <tr><th>Ação</th><th>gestao_1</th><th>gestao_2</th><th>participante</th></tr>
+      <tr><td>Ativar/inativar cadastro</td><td>✅ (exclusivo)</td><td>❌</td><td>❌</td></tr>
+      <tr><td>Aprovar/rejeitar atestado</td><td>✅ (exclusivo)</td><td>❌</td><td>❌</td></tr>
+      <tr><td>Alterar CID-O e lateralidade</td><td>✅ (exclusivo)</td><td>❌</td><td>❌</td></tr>
+      <tr><td>Cancelar aula</td><td>✅ (exclusivo)</td><td>❌</td><td>❌</td></tr>
+      <tr><td>Encerrar inscrição (desligamento)</td><td>✅ (exclusivo)</td><td>❌</td><td>❌</td></tr>
+      <tr><td>Deferir/indeferir justificativa</td><td>✅</td><td>✅ (v2.5)</td><td>❌</td></tr>
+      <tr><td>Lançar chamada (P/F/CSP)</td><td>❌</td><td>✅ (exclusivo)</td><td>❌</td></tr>
+      <tr><td>Registrar PSE do REMAMA</td><td>❌</td><td>✅</td><td>❌</td></tr>
+      <tr><td>Publicar link da sala</td><td>✅</td><td>✅</td><td>❌</td></tr>
+      <tr><td>Pré-cadastro e inscrição em turmas</td><td>✅</td><td>✅</td><td>❌</td></tr>
+      <tr><td>"Entrar na aula" (PRE)</td><td>❌</td><td>❌</td><td>✅ (só própria)</td></tr>
+      <tr><td>PSE do ONcoFITT (24h)</td><td>❌</td><td>✅</td><td>✅ (só própria)</td></tr>
+      <tr><td>Enviar atestado</td><td>✅</td><td>✅</td><td>✅ (só própria)</td></tr>
+      <tr><td>Enviar justificativa</td><td>✅</td><td>✅</td><td>✅ (só própria)</td></tr>
+      <tr><td>Toggle máscara LGPD</td><td>✅</td><td>✅</td><td>❌</td></tr>
+    </table>
+  </div>
+
+  <h2>Auto-edição da aluna (ALT-01 a ALT-03)</h2>
+  <div class="tbl-wrap">
+    <table>
+      <tr><th>Campo</th><th>Aluna edita?</th></tr>
+      <tr><td>Endereço completo</td><td>✅ Sim</td></tr>
+      <tr><td>Telefone, celular, contato de emergência</td><td>✅ Sim</td></tr>
+      <tr><td>Profissão, trabalho atual, faixa de renda</td><td>✅ Sim</td></tr>
+      <tr><td>Medicamentos de uso contínuo</td><td>✅ Sim</td></tr>
+      <tr><td>Comorbidades e sintomas auto-relatados</td><td>✅ Sim</td></tr>
+      <tr><td>Alergias (<code>possui_alergia</code>)</td><td>❌ Só a equipe</td></tr>
+      <tr><td>Ficha oncológica, CID-O, laudos</td><td>❌ Só a equipe</td></tr>
+      <tr><td>Nome, CPF, data de nascimento</td><td>❌ Só a equipe</td></tr>
+    </table>
+  </div>
+
+  <h2>Máscara LGPD</h2>
+  <p>Toggle "Com / Sem Máscara" disponível para <code>gestao_1</code> e <code>gestao_2</code> na interface web. <strong>É funcionalidade do frontend</strong> — não existe no banco. Modo "Com Máscara" substitui nome, CPF, telefone e endereço por identificadores pseudonimizados (ex.: <em>Aluna #1042</em>) para uso em projeções públicas.</p>
+
+  <h2>Isolamento por linha (RLS)</h2>
+  <p>A aluna enxerga apenas seus próprios registros. A equipe enxerga tudo. A RLS é verificada <em>além</em> dos GRANTs por coluna — ambos precisam estar corretos. O backend nunca deve usar um papel com <code>BYPASSRLS</code> em operações de aplicação.</p>
+</div>
+
+<!-- ══════════════════════════════ TAB 3 ══════════════════════════════ -->
+<div id="t3" class="tab-panel">
+  <p class="lead">14 requisitos funcionais. Cada um lista o que foi alterado em v2.5 (se houver) e o que é responsabilidade do banco vs. backend vs. frontend.</p>
+
+  <h3>RF01 · Autenticação e Recuperação de Senha</h3>
+  <div class="card card-brand"><p><strong>v2.5:</strong> login pode ser feito por e-mail ou CPF; a credencial vive no Supabase Auth (<code>auth_user_id</code> em <code>usuario_acesso</code>). A <code>senha_hash</code> é opcional. Recuperação de senha via <code>supabase.auth.resetPasswordForEmail()</code> com SMTP próprio obrigatório (Free envia só 2 e-mails/hora).</p></div>
+  <p>Banco: <code>usuario_acesso</code>, <code>nivel_acesso</code>. Backend: buscar CPF → e-mail antes do <code>signInWithPassword</code>. Frontend: tela <code>/login</code> e <code>/recuperar-senha</code>.</p>
+
+  <h3>RF02 · Cadastro Multifatorial e Auto-Gestão</h3>
+  <p>Blocos: Dados Pessoais, Socioeconômicos, Endereço, Contato de Emergência. Status inicial <code>id_status = 2</code> (Pendente). Ativa (<code>id_status = 1</code>) automaticamente quando: contato de emergência preenchido + atestado aprovado e vigente + inscrição ativa.</p>
+
+  <h3>RF03 · Contato de Emergência e Alergias (RN08)</h3>
+  <p>Contato com nome, telefone e parentesco é obrigatório para homologação. Campo <code>possui_alergia</code>: se <code>true</code>, <code>descricao_alergia</code> é obrigatório. Alunos editam o contato de emergência; alergias são editadas apenas pela equipe.</p>
+
+  <h3>RF04 · Ficha Médica e Histórico Oncológico</h3>
+  <p>Tabela <code>ficha_medica</code>: tipo de câncer (catálogo <code>tipo_cancer</code>), lateralidade, datas de término de cirurgia, quimio e radioterapia, hormonioterapia em andamento, radioterapia em manutenção. CID-O e lateralidade: exclusivo <code>gestao_1</code> após primeiro preenchimento.</p>
+
+  <h3>RF05 · Radar de Comorbidades, Sintomas e Medicamentos</h3>
+  <p>Comorbidades com variação obrigatória (Cardiovasculares, HAS, Diabetes, Musculoesqueléticas). Sintomas: linfedema (grau <strong>1 a 4</strong>, braço afetado) e neuropatia (localização). <code>medicamentos TEXT</code> editável pela aluna. Auto-relato via ALT-03.</p>
+
+  <h3>RF06 · Atestados e Justificativas</h3>
+  <p>Atestado: entra <em>pendente</em>, aprovado só pela <code>gestao_1</code>, vigência de 180 dias a partir de <code>data_documento</code>. Data futura recusada. Justificativa: texto, arquivo ou ambos. Deferimento pela <code>gestao_1</code> ou <code>gestao_2</code>. Falta vira J apenas no deferimento.</p>
+
+  <h3>RF07 · Inscrições por Programa</h3>
+  <p>Inscrição independente em REMAMA e ONcoFITT. Status global automático (v2.5 — ver Aba 4, RN02/RF07). Encerramento de inscrição exclusivo da <code>gestao_1</code>.</p>
+
+  <h3>RF08 · Agenda, Frequência, Pré-Registro e PSE</h3>
+  <div class="card card-brand"><p><strong>v2.5:</strong> <code>aula.link_aula</code> preenchido pelo professor. A aluna nunca lê a coluna diretamente — usa <code>fn_link_aula()</code>. "Entrar na aula" só funciona no horário da aula e com atestado vigente e link publicado.</p></div>
+  <p>4 estados: P, F, J, CSP. Estado transitório PRE. PSE: REMAMA só pelo professor; ONcoFITT pelo professor ou pela aluna em até 24h. Após PSE, presença e PSE são imutáveis.</p>
+
+  <h3>RF09 · Bateria Senior Fitness Test</h3>
+  <p>Sentar e levantar, flexão de cotovelo (LD/LE), flexibilidade, marcha estacionária 2 min, FC de repouso. RCQ opcional.</p>
+
+  <h3>RF10 · Dashboards Analíticos</h3>
+  <p>Assiduidade por turma, alertas de frequência crítica (&lt;60%), evolução longitudinal. Views: <code>vw_pesquisador_evolucao</code>, <code>vw_participante_acompanhamento</code>. Toggle LGPD no frontend.</p>
+
+  <h3>RF11 · Exportação XLSX/CSV</h3>
+  <p>Todas as listagens e relatórios. Modo "Com Máscara" omite PII nas exportações. Implementação no Next.js (<code>/lib/exportarCsv.ts</code>).</p>
+
+  <h3>RF12 · Cargos e Barcos (Dragon Boat)</h3>
+  <p>Cargos: Aluna/Remadora, Capitã, Voga, Gerente, Dragonete. Especializações: Leme, Tambor. Capitã: máximo 1 por barco (tabela <code>barco</code>, v2.5). Voga dita o ritmo; Capitã lidera operacionalmente.</p>
+
+  <h3>RF13 · Acompanhamento Técnico e Físico</h3>
+  <p>Aba Física/Clínica: bateria SFT, PA/FC, sintomas. Aba Técnica: frequência acumulada, cargos, barco, dias indoor.</p>
+
+  <h3>RF14 · Filtro de Contexto por Programa</h3>
+  <p>Após login, telas filtram por REMAMA, ONcoFITT ou Ambos. Seletor de contexto no header para usuários inscritos nos dois programas.</p>
+</div>
+
+<!-- ══════════════════════════════ TAB 4 ══════════════════════════════ -->
+<div id="t4" class="tab-panel">
+  <p class="lead">13 regras de negócio. As marcadas com ⚙️ estão implementadas no banco (trigger ou constraint). As marcadas com 🖥️ são responsabilidade do backend/frontend.</p>
+
+  <div class="tbl-wrap">
+    <table>
+      <tr><th>ID</th><th>Regra</th><th>Onde</th></tr>
+      <tr>
+        <td><strong>RN01</strong></td>
+        <td>
+          <strong>Assiduidade mínima de 60%</strong><br>
+          <code>Assiduidade = P / (Realizadas − J − CSP) × 100</code><br>
+          Alerta visual se &lt;60%. Aulas canceladas e PRE ficam fora do cálculo.
+        </td>
+        <td>⚙️ <code>vw_assiduidade_programa</code></td>
+      </tr>
+      <tr>
+        <td><strong>RN02</strong></td>
+        <td><strong>Atestado de 180 dias.</strong> Vencido: bloqueia P no REMAMA e o botão "Entrar na aula" no ONcoFITT. Não altera o <code>id_status</code> da aluna. Radioterapia em manutenção exige atestado do tipo <code>radioterapia_manutencao</code>.</td>
+        <td>⚙️ <code>fn_participante_apto</code>, <code>fn_validar_frequencia_status</code>, <code>fn_link_aula</code></td>
+      </tr>
+      <tr>
+        <td><strong>RN03</strong></td>
+        <td><strong>Portfólio de Saúde Anual.</strong> Redirecionamento no 1º acesso do ano para revisar linfedema, dores e comorbidades.</td>
+        <td>🖥️ Frontend/backend</td>
+      </tr>
+      <tr>
+        <td><strong>RN04</strong></td>
+        <td><strong>Avaliações quadrimestrais (120 dias).</strong> Ciclos regulares com comparação percentual.</td>
+        <td>🖥️ Backend (lógica de ciclo)</td>
+      </tr>
+      <tr>
+        <td><strong>RN05</strong></td>
+        <td><strong>Capacidade por modalidade.</strong> REMAMA: diretriz de 20/barco, sem hard-block. ONcoFITT: hard-block na 101ª presença confirmada (P) na aula — concorrência tratada com <code>FOR UPDATE</code> na contagem.</td>
+        <td>⚙️ <code>fn_validar_frequencia_status</code></td>
+      </tr>
+      <tr>
+        <td><strong>RN06</strong></td>
+        <td><strong>PA e FC: opcionais, recomendados.</strong> Ausência não bloqueia chamada nem PSE. FC aceita 30–220 bpm. PA: sistólica 50–300 mmHg, diastólica 30–200 mmHg. Par sistólica/diastólica sempre junto.</td>
+        <td>⚙️ <code>ck_frequencia_fc</code>, <code>ck_frequencia_pa</code></td>
+      </tr>
+      <tr>
+        <td><strong>RN07</strong></td>
+        <td><strong>Exportação compulsória em XLSX.</strong> Todos os relatórios com botão de download.</td>
+        <td>🖥️ Frontend (Next.js)</td>
+      </tr>
+      <tr>
+        <td><strong>RN08</strong></td>
+        <td><strong>Contato de emergência obrigatório.</strong> Nome, telefone e parentesco preenchidos para ativação. Alergia declarada exige descrição.</td>
+        <td>⚙️ <code>ck_alergia_descricao</code>, <code>fn_proteger_status_global</code></td>
+      </tr>
+      <tr>
+        <td><strong>RN09</strong></td>
+        <td><strong>Liberação médica por término de tratamento.</strong> Hormonioterapia: apta. Quimio ou radio agudas: inapta. Radio em manutenção: apta somente com atestado específico.</td>
+        <td>⚙️ <code>ck_radioterapia_manutencao</code>, <code>fn_participante_apto</code></td>
+      </tr>
+      <tr>
+        <td><strong>RN10</strong></td>
+        <td><strong>Proteção de ações críticas por senha ADM.</strong> Desligamento definitivo e alteração de CID-O exigem senha de confirmação de ADM. Sem exclusão física.</td>
+        <td>🖥️ Frontend/backend; banco impede DELETE</td>
+      </tr>
+      <tr>
+        <td><strong>RN11</strong></td>
+        <td><strong>Chamada exclusiva do professor.</strong> P/F/CSP só pela <code>gestao_2</code>. J só pelo deferimento. Após PSE: presença e PSE imutáveis. Sem PSE: professor pode corrigir o status.</td>
+        <td>⚙️ <code>fn_validar_frequencia_status</code>, <code>fn_validar_frequencia_pse</code></td>
+      </tr>
+      <tr>
+        <td><strong>RN12</strong></td>
+        <td><strong>1 Capitã por barco.</strong> Tabela <code>barco</code> (v2.5). <code>turma</code> é turma-horário. Barco sem atribuição não entra na regra. Voga dita o ritmo.</td>
+        <td>⚙️ <code>uq_capita_por_barco</code> em <code>inscricao_programa</code></td>
+      </tr>
+      <tr>
+        <td><strong>RN13</strong></td>
+        <td><strong>Continuidade indoor.</strong> Chuva no REMAMA → aula funcional coberta. <code>tipo_aula = 'indoor'</code>. Conta como aula realizada.</td>
+        <td>⚙️ <code>tipo_aula CHECK</code>, <code>fn_cancelar_aula</code></td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ TAB 5 ══════════════════════════════ -->
+<div id="t5" class="tab-panel">
+  <p class="lead">DDL v3.3.1 — 1 829 linhas, PostgreSQL 15+. Todas as mudanças em relação ao v3.2 estão no cabeçalho do arquivo SQL.</p>
+
+  <h2>Entidades principais</h2>
+  <div class="tbl-wrap">
+    <table>
+      <tr><th>Tabela</th><th>Propósito</th><th>Constraints / triggers notáveis</th></tr>
+      <tr><td><code>participante</code></td><td>Cadastro central da aluna</td><td><code>ck_alergia_descricao</code>; RLS SELECT por <code>id_participante</code>; UPDATE de <code>id_status</code> só pela <code>gestao_1</code></td></tr>
+      <tr><td><code>contato</code></td><td>Telefones e contato de emergência</td><td><code>parentesco NOT NULL</code>; dispara reativação automática de status</td></tr>
+      <tr><td><code>atestado_medico</code></td><td>Laudos e atestados</td><td>Nasce pendente; data futura recusada; aprovação exclusiva <code>gestao_1</code>; dispara reativação automática</td></tr>
+      <tr><td><code>inscricao_programa</code></td><td>Vínculo aluna ↔ programa</td><td><code>uq_inscricao_ativa</code>; <code>uq_capita_por_barco</code>; <code>ck_inscricao_barco</code>; dispara reativação/desligamento automático</td></tr>
+      <tr><td><code>barco</code></td><td>Embarcação do REMAMA (v2.5)</td><td><code>uq_barco_nome</code> (case-insensitive); só REMAMA (<code>ck_inscricao_barco</code>)</td></tr>
+      <tr><td><code>aula</code></td><td>Grade de aulas</td><td><code>tipo_aula</code> CHECK; <code>ck_aula_link</code> (HTTPS obrigatório); cancelamento exclusivo <code>gestao_1</code></td></tr>
+      <tr><td><code>registro_frequencia</code></td><td>Chamada e PSE</td><td>UPDATE restrito a colunas operacionais; <code>fn_validar_frequencia_status</code>; <code>fn_validar_frequencia_pse</code>; <code>uq_frequencia_aula</code></td></tr>
+      <tr><td><code>justificativa_falta</code></td><td>Justificativas de falta</td><td>Texto ou arquivo ou ambos; deferimento por <code>gestao_1</code> ou <code>gestao_2</code>; deferimento converte F→J via <code>fn_marcar_falta_justificada</code></td></tr>
+      <tr><td><code>ficha_medica</code></td><td>Histórico oncológico</td><td>1:1 com participante; CID-O e lateralidade protegidos após primeiro preenchimento</td></tr>
+      <tr><td><code>sintoma</code></td><td>Linfedema e neuropatia</td><td><code>grau BETWEEN 1 AND 4</code>; <code>ck_sintoma_campos</code> (campos por tipo)</td></tr>
+      <tr><td><code>usuario_acesso</code></td><td>Autenticação</td><td><code>auth_user_id UUID</code> (Supabase Auth); <code>ck_usuario_credencial</code> (hash ou auth_user_id obrigatório)</td></tr>
+      <tr><td><code>auditoria_sistema</code></td><td>Trilha de auditoria</td><td>Trigger automática em todas as tabelas de negócio; nunca copia <code>senha_hash</code></td></tr>
+    </table>
+  </div>
+
+  <h2>Funções e views críticas</h2>
+  <div class="tbl-wrap">
+    <table>
+      <tr><th>Objeto</th><th>Descrição</th></tr>
+      <tr><td><code>fn_participante_apto(id, data)</code></td><td>Retorna <code>TRUE</code> se há atestado aprovado e vigente (180 dias). Considera radioterapia em manutenção.</td></tr>
+      <tr><td><code>fn_link_aula(id_aula)</code></td><td>Entrega o link da sala somente se: aula em andamento, atestado vigente, pré-registro feito. Uso exclusivo pela aluna autenticada.</td></tr>
+      <tr><td><code>fn_recalcular_status_participante(id, retorno)</code></td><td>Automação do ciclo de vida (2→1, 1→4, 4→1). Chamada por triggers em atestado, inscrição e contato.</td></tr>
+      <tr><td><code>vw_participante_apto</code></td><td>Lista <code>apto_pratica</code> e <code>atestado_valido_ate</code> para todas as participantes.</td></tr>
+      <tr><td><code>vw_assiduidade_programa</code></td><td>Fórmula RN01 com alerta de &lt;60%.</td></tr>
+      <tr><td><code>vw_pesquisador_evolucao</code></td><td>Microdados para análise estatística. Acesso com máscara LGPD no frontend.</td></tr>
+    </table>
+  </div>
+
+  <h2>Papéis SQL</h2>
+  <pre><code>app_participante   -- RLS: só vê a própria linha; UPDATE restrito por coluna
+app_gestao_2       -- visão ampla; INSERT/UPDATE operacional; sem ações críticas
+app_gestao_1       -- controle total exceto BYPASSRLS e DELETE físico</code></pre>
+  <p>O backend configura <code>SET app.id_usuario = &lt;id&gt;</code> antes de cada query. As funções <code>app_usuario_id()</code> e <code>app_nivel_usuario()</code> leem essa variável de sessão.</p>
+</div>
+
+<!-- ══════════════════════════════ TAB 6 ══════════════════════════════ -->
+<div id="t6" class="tab-panel">
+  <p class="lead">Stack homologada para produção. A escolha entre Free e Pro é uma decisão operacional com impacto direto na segurança dos dados.</p>
+
+  <h2>Free vs Pro — Supabase</h2>
+  <div class="card card-amber">
+    <h4>⚠️ O Supabase Free é insuficiente para dados clínicos reais</h4>
+    <ul>
+      <li><strong>Sem backup automático.</strong> Perda de dados não tem reversão.</li>
+      <li><strong>Pausa após 7 dias sem uso.</strong> A plataforma fica offline; uma semana de recesso quebra o acesso.</li>
+      <li><strong>2 e-mails/hora (SMTP padrão).</strong> Recuperação de senha falha com mais de 2 usuários simultâneos.</li>
+      <li><strong>500 MB de banco por projeto.</strong> Histórico longitudinal multi-ano pode exceder.</li>
+    </ul>
+    <p><strong>Recomendação:</strong> usar o Free apenas para desenvolvimento e testes. Migrar para o Pro (~US$25/mês) antes de alunas reais entrarem no sistema.</p>
+  </div>
+
+  <h2>O que o Pro entrega que importa</h2>
+  <div class="tbl-wrap">
+    <table>
+      <tr><th>Recurso</th><th>Free</th><th>Pro</th></tr>
+      <tr><td>Backup automático</td><td>❌</td><td>✅ Diário, 7 dias</td></tr>
+      <tr><td>Pausa por inatividade</td><td>7 dias</td><td>Nunca</td></tr>
+      <tr><td>Banco por projeto</td><td>500 MB</td><td>8 GB</td></tr>
+      <tr><td>E-mails auth (SMTP padrão)</td><td>2/hora</td><td>30/hora</td></tr>
+      <tr><td>Custo</td><td>Grátis</td><td>~US$25/mês</td></tr>
+    </table>
+  </div>
+
+  <h2>SMTP próprio — obrigatório para produção</h2>
+  <p>Configure em Supabase → Authentication → SMTP Settings. Opções gratuitas adequadas:</p>
+  <ul>
+    <li><strong>Resend:</strong> 100 e-mails/dia grátis, DNS fácil, integração direta com Next.js.</li>
+    <li><strong>SendGrid:</strong> 100 e-mails/dia grátis no plano gratuito.</li>
+  </ul>
+  <p>Disponível em todos os planos, incluindo o Free. Depois de configurado, o limite sobe para 30/hora (padrão) ou o que seu provedor permitir.</p>
+
+  <h2>Papéis SQL e sessão</h2>
+  <pre><code>-- O backend configura antes de cada request:
+SET app.id_usuario = '{id do usuario autenticado}';
+SET ROLE app_gestao_1; -- ou app_gestao_2 / app_participante</code></pre>
+  <div class="card card-amber">
+    <h4>Nunca usar o role proprietário do schema em operações de aplicação</h4>
+    <p>O role proprietário tem BYPASSRLS. Usar em produção anula toda a RLS e expõe dados de todas as alunas.</p>
+  </div>
+
+  <h2>Storage (laudos e atestados)</h2>
+  <p>Buckets privados no Supabase Storage. URLs assinadas com expiração curta (ex.: 15 minutos). O backend assina a URL no momento da solicitação — nunca expõe a URL permanente.</p>
+</div>
+
+<!-- ══════════════════════════════ TAB 7 ══════════════════════════════ -->
+<div id="t7" class="tab-panel">
+  <p class="lead">O que cada equipe precisa ler, implementar e respeitar. Leia a seção da sua equipe e a Aba 5 (Modelo de Dados).</p>
+
+  <div class="team-grid">
+    <div class="team-card">
+      <h4>🗄️ Engenharia de Dados (Eq. 2)</h4>
+      <ul>
+        <li>Provisionar o <strong>DDL_v3_3_1.sql</strong> em banco novo no Supabase</li>
+        <li>Criar os 3 roles SQL (<code>app_participante</code>, <code>app_gestao_1</code>, <code>app_gestao_2</code>) sem BYPASSRLS</li>
+        <li>Configurar <code>ALTER DATABASE SET timezone = 'America/Sao_Paulo'</code></li>
+        <li>Rodar o arquivo de testes (<strong>testes_validacao_v3_3.sql</strong>) e garantir 181/181</li>
+        <li>Configurar os buckets de Storage (laudos, atestados, justificativas)</li>
+        <li>Seeds de produção: CID-O, comorbidades, cargos já estão no DDL</li>
+      </ul>
+    </div>
+    <div class="team-card">
+      <h4>🌐 Arquitetura do Site (Eq. 3)</h4>
+      <ul>
+        <li>Integrar Supabase Auth: <code>signInWithPassword</code>, <code>resetPasswordForEmail</code></li>
+        <li>Para login por CPF: buscar CPF → e-mail antes do Auth</li>
+        <li>Configurar <code>SET app.id_usuario</code> e <code>SET ROLE</code> em cada request</li>
+        <li>Chamar <code>fn_link_aula(id_aula)</code> — <strong>nunca ler <code>link_aula</code> direto</strong></li>
+        <li>Chamada de frequência: usar INSERT; nunca UPDATE de <code>id_aula</code> ou <code>id_participante</code></li>
+        <li>URLs de Storage: sempre assinadas (expiração curta)</li>
+        <li>Exportação XLSX com modo máscara LGPD</li>
+        <li>Filtro de contexto por programa no header</li>
+      </ul>
+    </div>
+    <div class="team-card">
+      <h4>🎨 UX / UI (Eq. 4)</h4>
+      <ul>
+        <li>Botão "Entrar na aula": visível só no horário da aula, desabilitado se atestado vencido</li>
+        <li>Após PSE registrado: desabilitar edição de presença e PSE na UI</li>
+        <li>Sem PSE: botão de correção de presença disponível para o professor</li>
+        <li>Grau de linfedema: select de 1 a 4</li>
+        <li>PA: par sistólica/diastólica sempre junto (nunca um campo só)</li>
+        <li>Toggle máscara LGPD: só para <code>gestao_1</code> e <code>gestao_2</code></li>
+        <li>Card de Emergência: destaque visual com alergias e medicamentos</li>
+        <li>Justificativa: aceitar texto, arquivo ou ambos (nunca exigir os dois)</li>
+        <li>Seletor de barco na inscrição do REMAMA</li>
+        <li>Paleta oficial: <code>#E02475</code>, tipografia Inter/Sans, componentes Tailwind</li>
+      </ul>
+    </div>
+    <div class="team-card">
+      <h4>📊 Ciência de Dados (Eq. 5)</h4>
+      <ul>
+        <li>Microdados via <code>vw_pesquisador_evolucao</code> (sempre com máscara)</li>
+        <li>Assiduidade: usar <code>vw_assiduidade_programa</code> (fórmula já correta com dedução de J e CSP)</li>
+        <li>Linfedema: variável ordinal 1–4 (não 1–3)</li>
+        <li>PA: sistólica e diastólica como variáveis separadas no modelo</li>
+        <li>PSE: Escala de Borg CR-10 (0–10), inteiro</li>
+        <li>Status de presença: P, F, J, CSP, PRE — PRE e CSP não contam como presença nem falta</li>
+        <li>Avaliações: ciclos de 120 dias; comparação percentual ao baseline</li>
+        <li>Exportações: solicitar à coordenação via botão XLSX ou acesso direto ao banco com usuário de pesquisa</li>
+      </ul>
+    </div>
+    <div class="team-card">
+      <h4>✅ QA / Garantia da Qualidade (Eq. 6)</h4>
+      <ul>
+        <li>Executar <strong>testes_validacao_v3_3.sql</strong> no Supabase de staging</li>
+        <li>Casos de teste críticos: atestado vencido bloqueia P e PRE; 101ª presença bloqueada; F→J só no deferimento; PSE imutável após registro</li>
+        <li>Testar concorrência: dois professores confirmando a 100ª presença simultaneamente</li>
+        <li>Testar SMTP: recuperação de senha com e sem SMTP configurado</li>
+        <li>Testar máscara LGPD: CPF e nome não aparecem em exportações com máscara ativa</li>
+        <li>Validar que a aluna não lê <code>link_aula</code> diretamente</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>Sequência recomendada de entrega</h2>
+  <ol>
+    <li><strong>Eq. 2:</strong> DDL v3.3.1 no Supabase Pro + SMTP configurado + testes passando.</li>
+    <li><strong>Eq. 3:</strong> Auth + session (role + id_usuario) + fn_link_aula + CRUD básico.</li>
+    <li><strong>Eq. 4:</strong> Protótipos das telas críticas (chamada, "Entrar na aula", atestado).</li>
+    <li><strong>Eq. 6:</strong> Validação end-to-end nos casos críticos acima.</li>
+    <li><strong>Eq. 5:</strong> Scripts de agregação consumindo as views com dados reais.</li>
+  </ol>
+</div>
+
+<!-- ══════════════════════════════ TAB 8 ══════════════════════════════ -->
+<div id="t8" class="tab-panel">
+  <p class="lead">Cada requisito ou regra mapeado para o objeto de banco e a equipe responsável pela implementação fora do banco.</p>
+  <div class="tbl-wrap">
+    <table>
+      <tr><th>ID</th><th>Descrição</th><th>Objeto no banco (DDL v3.3.1)</th><th>Equipe (fora do banco)</th></tr>
+      <tr><td>RF01</td><td>Autenticação e recuperação de senha</td><td><code>usuario_acesso</code>, <code>auth_user_id</code>, <code>nivel_acesso</code></td><td>Eq. 3 (Supabase Auth + SMTP)</td></tr>
+      <tr><td>RF02</td><td>Cadastro multifatorial e auto-gestão</td><td><code>participante</code>, <code>endereco</code>, <code>fn_recalcular_status_participante</code></td><td>Eq. 3 (formulário), Eq. 4 (UX)</td></tr>
+      <tr><td>RF03</td><td>Contato de emergência e alergias</td><td><code>contato</code>, <code>ck_alergia_descricao</code></td><td>Eq. 4 (Card de Emergência)</td></tr>
+      <tr><td>RF04</td><td>Ficha médica e histórico oncológico</td><td><code>ficha_medica</code>, <code>tipo_cancer</code>, <code>fn_proteger_diagnostico_base</code></td><td>Eq. 3 (proteção de rota), Eq. 4 (prontuário)</td></tr>
+      <tr><td>RF05</td><td>Comorbidades, sintomas, medicamentos</td><td><code>comorbidade</code>, <code>sintoma</code> (grau 1–4), <code>trg_validar_comorbidade</code></td><td>Eq. 4 (formulários radar)</td></tr>
+      <tr><td>RF06</td><td>Atestados e justificativas</td><td><code>atestado_medico</code>, <code>justificativa_falta</code>, <code>fn_validar_atestado</code>, <code>fn_analisar_justificativa</code></td><td>Eq. 3 (Storage), Eq. 4 (fluxo aprovação)</td></tr>
+      <tr><td>RF07</td><td>Inscrições por programa e ciclo de status</td><td><code>inscricao_programa</code>, <code>fn_atualiza_status_participante</code></td><td>Eq. 3 (UI de matrícula)</td></tr>
+      <tr><td>RF08</td><td>Agenda, frequência, PRE, PSE, link</td><td><code>aula</code> (<code>link_aula</code>), <code>registro_frequencia</code>, <code>fn_link_aula</code>, <code>fn_validar_frequencia_status/pse</code></td><td>Eq. 3 (botão "Entrar"), Eq. 4 (UI chamada)</td></tr>
+      <tr><td>RF09</td><td>Bateria Senior Fitness Test</td><td><code>avaliacao</code></td><td>Eq. 4 (formulário bateria)</td></tr>
+      <tr><td>RF10</td><td>Dashboards analíticos</td><td><code>vw_pesquisador_evolucao</code>, <code>vw_participante_acompanhamento</code></td><td>Eq. 3 (gráficos), Eq. 4 (toggle LGPD)</td></tr>
+      <tr><td>RF11</td><td>Exportação XLSX/CSV</td><td>Views analíticas</td><td>Eq. 3 (<code>/lib/exportarCsv.ts</code>)</td></tr>
+      <tr><td>RF12</td><td>Cargos e barcos (Dragon Boat)</td><td><code>barco</code>, <code>cargo_participante</code>, <code>uq_capita_por_barco</code></td><td>Eq. 3 (gestão de barco), Eq. 4 (UX)</td></tr>
+      <tr><td>RF13</td><td>Acompanhamento técnico e físico</td><td><code>vw_participante_acompanhamento</code></td><td>Eq. 4 (aba dupla)</td></tr>
+      <tr><td>RF14</td><td>Filtro de contexto por programa</td><td>Filtro nas queries (<code>id_programa</code>)</td><td>Eq. 3 (seletor no header)</td></tr>
+      <tr><td>RN01</td><td>Assiduidade 60%, fórmula P/(R−J−CSP)</td><td><code>vw_assiduidade_programa</code></td><td>Eq. 4 (alerta visual &lt;60%)</td></tr>
+      <tr><td>RN02</td><td>Atestado 180 dias — trava médica</td><td><code>fn_participante_apto</code>, <code>vw_participante_apto</code></td><td>Eq. 3 (bloquear botão), Eq. 4 (UX)</td></tr>
+      <tr><td>RN03</td><td>Portfólio anual</td><td>—</td><td>Eq. 3 (redirect no 1º acesso do ano)</td></tr>
+      <tr><td>RN04</td><td>Avaliações quadrimestrais (120 dias)</td><td><code>avaliacao</code></td><td>Eq. 3 (lógica de ciclo)</td></tr>
+      <tr><td>RN05</td><td>Capacidade: 20/barco (diretriz) e 100/aula ONcoFITT (hard-block)</td><td><code>fn_validar_frequencia_status</code></td><td>Eq. 4 (aviso de lotação)</td></tr>
+      <tr><td>RN06</td><td>PA e FC opcionais</td><td><code>ck_frequencia_fc</code>, <code>ck_frequencia_pa</code></td><td>Eq. 4 (campos não obrigatórios)</td></tr>
+      <tr><td>RN07</td><td>Exportação obrigatória em XLSX</td><td>—</td><td>Eq. 3 (Next.js)</td></tr>
+      <tr><td>RN08</td><td>Contato obrigatório para ativação</td><td><code>fn_proteger_status_global</code>, <code>fn_recalcular_status_participante</code></td><td>Eq. 4 (validação no form)</td></tr>
+      <tr><td>RN09</td><td>Liberação médica por término de tratamento</td><td><code>fn_participante_apto</code>, <code>ck_radioterapia_manutencao</code></td><td>—</td></tr>
+      <tr><td>RN10</td><td>Senha ADM para ações críticas</td><td><code>fn_proteger_diagnostico_base</code>, GRANTs</td><td>Eq. 3 (modal de confirmação)</td></tr>
+      <tr><td>RN11</td><td>Chamada exclusiva do professor; imutabilidade pós-PSE</td><td><code>fn_validar_frequencia_status</code>, <code>fn_validar_frequencia_pse</code></td><td>Eq. 4 (desabilitar edição)</td></tr>
+      <tr><td>RN12</td><td>1 Capitã por barco</td><td><code>uq_capita_por_barco</code>, <code>barco</code></td><td>Eq. 4 (seletor de barco)</td></tr>
+      <tr><td>RN13</td><td>Continuidade indoor</td><td><code>tipo_aula CHECK</code></td><td>Eq. 4 (indicador de tipo de aula)</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ TAB 9 ══════════════════════════════ -->
+<div id="t9" class="tab-panel">
+  <h2>Decisões formalizadas nesta versão</h2>
+  <div class="tbl-wrap">
+    <table>
+      <tr><th>Decisão</th><th>Escolha</th><th>Alternativa descartada</th></tr>
+      <tr><td>Status global</td><td>Automático via trigger (RF07 do MD)</td><td>Manual pela <code>gestao_1</code> (v3.1/3.2)</td></tr>
+      <tr><td>Barco</td><td>Entidade própria (<code>barco</code>); <code>turma</code> = turma-horário</td><td>Turma = barco (causava ambiguidade)</td></tr>
+      <tr><td>Deferimento de justificativa</td><td><code>gestao_1</code> e <code>gestao_2</code></td><td>Só <code>gestao_1</code> (gargalo operacional)</td></tr>
+      <tr><td>Grau de linfedema</td><td>1 a 4</td><td>1 a 3 (sem confirmação clínica)</td></tr>
+      <tr><td>Faixas de PA</td><td>Sistólica 50–300, diastólica 30–200 mmHg</td><td>Sem validação</td></tr>
+      <tr><td>Link da sala</td><td><code>aula.link_aula</code> + <code>fn_link_aula()</code></td><td>Link armazenado no frontend</td></tr>
+      <tr><td>Autenticação</td><td>Supabase Auth (<code>auth_user_id</code>)</td><td>Fluxo próprio com tabela de tokens</td></tr>
+    </table>
+  </div>
+
+  <h2>Premissas assumidas (a confirmar com a coordenação)</h2>
+  <ul>
+    <li>Desligamento automático (1→4) quando <em>toda</em> inscrição ativa é encerrada — e retorno (4→1) em novo ingresso. Se o comportamento desejado for diferente, a trigger <code>fn_recalcular_status_participante</code> é o único ponto a alterar.</li>
+    <li>CID-O dos tipos de câncer está vazio no DDL; será preenchido pela coordenação na migração para produção.</li>
+  </ul>
+
+  <h2>O que está fora do banco (responsabilidade do backend/frontend)</h2>
+  <ul>
+    <li>Senha de ADM para ações críticas (RN10)</li>
+    <li>Toggle de máscara LGPD</li>
+    <li>Portfólio de saúde anual — redirect no 1º acesso (RN03)</li>
+    <li>Exportação XLSX com anonimização (RF11)</li>
+    <li>Filtro de contexto por programa no header (RF14)</li>
+    <li>Periodicidade quadrimestral das avaliações (RN04)</li>
+  </ul>
+
+  <h2>Backlog pós-MVP2</h2>
+  <ul>
+    <li><strong>Gamificação:</strong> Barco Dragão coletivo avançando conforme índice de presença da turma.</li>
+    <li><strong>Portfólio anual automatizado:</strong> notificação push ou e-mail no 1º acesso após 12 meses.</li>
+    <li><strong>Point-in-Time Recovery:</strong> disponível no Supabase Pro para recuperação de dados a qualquer momento.</li>
+  </ul>
+
+  <div class="card card-green">
+    <h4>Status do banco: pronto para produção</h4>
+    <p>DDL v3.3.1 validado com 181/181 testes automatizados em PostgreSQL 16, cobrindo RLS, papéis SQL, triggers, concorrência e todos os 5 pontos críticos levantados pela coordenação. Próximo passo: provisionar no Supabase Pro com SMTP configurado.</p>
+  </div>
+</div>
+
+<script>
+function show(id) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.currentTarget.classList.add('active');
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+</script>
+</body>
+</html>
