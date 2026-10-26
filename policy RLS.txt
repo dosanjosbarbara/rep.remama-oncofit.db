@@ -1,0 +1,123 @@
+
+BEGIN;
+
+-- 1. Habilitar RLS nas 12 tabelas
+ALTER TABLE public.programa ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.nivel_acesso ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.tipo_cancer ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.estado_civil ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.cargo_participante ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.status_participante ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.status_presenca ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.tipo_comorbidade ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.variacao_comorbidade ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.tipo_treinamento ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.barco ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.auditoria_sistema ENABLE ROW LEVEL SECURITY;
+
+-- 2. Políticas de leitura dos catálogos
+-- Os três papéis podem consultar dados de referência não pessoais.
+
+DROP POLICY IF EXISTS programa_leitura ON public.programa;
+CREATE POLICY programa_leitura ON public.programa
+FOR SELECT TO app_participante, app_gestao_1, app_gestao_2
+USING (true);
+
+DROP POLICY IF EXISTS nivel_acesso_leitura ON public.nivel_acesso;
+CREATE POLICY nivel_acesso_leitura ON public.nivel_acesso
+FOR SELECT TO app_participante, app_gestao_1, app_gestao_2
+USING (true);
+
+DROP POLICY IF EXISTS tipo_cancer_leitura ON public.tipo_cancer;
+CREATE POLICY tipo_cancer_leitura ON public.tipo_cancer
+FOR SELECT TO app_participante, app_gestao_1, app_gestao_2
+USING (true);
+
+DROP POLICY IF EXISTS estado_civil_leitura ON public.estado_civil;
+CREATE POLICY estado_civil_leitura ON public.estado_civil
+FOR SELECT TO app_participante, app_gestao_1, app_gestao_2
+USING (true);
+
+DROP POLICY IF EXISTS cargo_participante_leitura ON public.cargo_participante;
+CREATE POLICY cargo_participante_leitura ON public.cargo_participante
+FOR SELECT TO app_participante, app_gestao_1, app_gestao_2
+USING (true);
+
+DROP POLICY IF EXISTS status_participante_leitura ON public.status_participante;
+CREATE POLICY status_participante_leitura ON public.status_participante
+FOR SELECT TO app_participante, app_gestao_1, app_gestao_2
+USING (true);
+
+DROP POLICY IF EXISTS status_presenca_leitura ON public.status_presenca;
+CREATE POLICY status_presenca_leitura ON public.status_presenca
+FOR SELECT TO app_participante, app_gestao_1, app_gestao_2
+USING (true);
+
+DROP POLICY IF EXISTS tipo_comorbidade_leitura ON public.tipo_comorbidade;
+CREATE POLICY tipo_comorbidade_leitura ON public.tipo_comorbidade
+FOR SELECT TO app_participante, app_gestao_1, app_gestao_2
+USING (true);
+
+DROP POLICY IF EXISTS variacao_comorbidade_leitura ON public.variacao_comorbidade;
+CREATE POLICY variacao_comorbidade_leitura ON public.variacao_comorbidade
+FOR SELECT TO app_participante, app_gestao_1, app_gestao_2
+USING (true);
+
+DROP POLICY IF EXISTS tipo_treinamento_leitura ON public.tipo_treinamento;
+CREATE POLICY tipo_treinamento_leitura ON public.tipo_treinamento
+FOR SELECT TO app_participante, app_gestao_1, app_gestao_2
+USING (true);
+
+DROP POLICY IF EXISTS barco_leitura ON public.barco;
+CREATE POLICY barco_leitura ON public.barco
+FOR SELECT TO app_participante, app_gestao_1, app_gestao_2
+USING (true);
+
+-- 3. Escrita em barco somente pela equipe autenticada no papel correto
+
+DROP POLICY IF EXISTS barco_inserir_gestao ON public.barco;
+CREATE POLICY barco_inserir_gestao ON public.barco
+FOR INSERT TO app_gestao_1, app_gestao_2
+WITH CHECK (
+    (current_user = 'app_gestao_1'
+     AND app_nivel_usuario() = 'gestao_1')
+    OR
+    (current_user = 'app_gestao_2'
+     AND app_nivel_usuario() = 'gestao_2')
+);
+
+DROP POLICY IF EXISTS barco_atualizar_gestao ON public.barco;
+CREATE POLICY barco_atualizar_gestao ON public.barco
+FOR UPDATE TO app_gestao_1, app_gestao_2
+USING (
+    (current_user = 'app_gestao_1'
+     AND app_nivel_usuario() = 'gestao_1')
+    OR
+    (current_user = 'app_gestao_2'
+     AND app_nivel_usuario() = 'gestao_2')
+)
+WITH CHECK (
+    (current_user = 'app_gestao_1'
+     AND app_nivel_usuario() = 'gestao_1')
+    OR
+    (current_user = 'app_gestao_2'
+     AND app_nivel_usuario() = 'gestao_2')
+);
+
+-- 4. Auditoria: leitura exclusiva da gestão autenticada
+
+DROP POLICY IF EXISTS auditoria_leitura_gestao
+ON public.auditoria_sistema;
+
+CREATE POLICY auditoria_leitura_gestao
+ON public.auditoria_sistema
+FOR SELECT TO app_gestao_1, app_gestao_2
+USING (
+    (current_user = 'app_gestao_1'
+     AND app_nivel_usuario() = 'gestao_1')
+    OR
+    (current_user = 'app_gestao_2'
+     AND app_nivel_usuario() = 'gestao_2')
+);
+
+COMMIT;
